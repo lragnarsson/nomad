@@ -9,6 +9,7 @@
 #include "genom/g_window.h"
 #include "genom/g_pipeline.h"
 #include "genom/g_swap_chain.h"
+#include "genom/g_model.h"
 
 #include <memory>
 #include <vector>
@@ -30,6 +31,8 @@ namespace nomad {
         void run();
 
     private:
+        void loadModels();
+
         void createPipelineLayout();
 
         void createPipeline();
@@ -45,6 +48,8 @@ namespace nomad {
         std::unique_ptr<genom::GPipeline> gPipeline;
         VkPipelineLayout pipelineLayout;
         std::vector<VkCommandBuffer> commandBuffers;
+
+        std::unique_ptr<genom::GModel> gModel;
     };
 }
 

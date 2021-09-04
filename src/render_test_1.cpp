@@ -10,6 +10,7 @@
 namespace nomad {
 
     RenderTest1::RenderTest1() {
+        loadModels();
         createPipelineLayout();
         createPipeline();
         createCommandBuffers();
@@ -86,7 +87,8 @@ namespace nomad {
             vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
             gPipeline->bind(commandBuffers[i]);
-            vkCmdDraw(commandBuffers[i], 3, 1, 0, 0);
+            gModel->bind(commandBuffers[i]);
+            gModel->draw(commandBuffers[i]);
 
             vkCmdEndRenderPass(commandBuffers[i]);
             if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS) {
@@ -107,5 +109,15 @@ namespace nomad {
         if (result != VK_SUCCESS) {
             throw std::runtime_error("failed to present swap chain image");
         }
+    }
+
+    void RenderTest1::loadModels() {
+        std::vector<genom::GModel::Vertex> vertices{
+                {{0.0f,  -0.5f}},
+                {{0.5f,  0.5f}},
+                {{-0.5f, 0.5f}}
+        };
+
+        gModel = std::make_unique<genom::GModel>(gDevice, vertices);
     }
 }
