@@ -38,6 +38,8 @@ namespace genom {
 
         void operator=(const GPipeline &) = delete;
 
+        void bind(VkCommandBuffer commandBuffer);
+
         static PipelineConfigInfo defaultPipelineConfigInfo(uint32_t width, uint32_t height);
 
     private:

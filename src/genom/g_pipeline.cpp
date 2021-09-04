@@ -200,4 +200,8 @@ namespace genom {
 
         return configInfo;
     }
+
+    void GPipeline::bind(VkCommandBuffer commandBuffer) {
+        vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+    }
 }
