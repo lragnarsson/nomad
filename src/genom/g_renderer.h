@@ -31,7 +31,7 @@ namespace genom {
 
         VkCommandBuffer getCurrentCommandBuffer() const {
             assert(isFrameStarted && "Cannot get command buffer when frame not in progress");
-            return commandBuffers[currentImageIndex];
+            return commandBuffers[currentFrameIndex];
 
         }
 

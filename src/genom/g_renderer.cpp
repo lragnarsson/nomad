@@ -28,17 +28,19 @@ namespace genom {
         if (gSwapChain == nullptr) {
             gSwapChain = std::make_unique<genom::GSwapChain>(gDevice, extent);
         } else {
-            gSwapChain = std::make_unique<genom::GSwapChain>(gDevice, extent, std::move(gSwapChain));
-            if (gSwapChain->imageCount() != commandBuffers.size()) {
-                freeCommandBuffers();
-                createCommandBuffers();
+            std::shared_ptr<GSwapChain> oldSwapChain = std::move(gSwapChain);
+            gSwapChain = std::make_unique<genom::GSwapChain>(gDevice, extent, oldSwapChain);
+
+            if (!oldSwapChain->compareSwapFormats(*gSwapChain.get())) {
+                throw std::runtime_error("swap chain image (or depth) format has changed");
             }
         }
         // TODO: foo
     }
 
     void GRenderer::createCommandBuffers() {
-        commandBuffers.resize(gSwapChain->imageCount());
+        commandBuffers.resize(GSwapChain::MAX_FRAMES_IN_FLIGHT);
+
         VkCommandBufferAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
         allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
