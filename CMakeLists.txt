@@ -29,7 +29,7 @@ message(STATUS "Found all libraries: ${LIBS}")
 add_executable(${PROJECT_NAME} ${SOURCE_FILES} ${HEADER_FILES})
 target_link_libraries(${PROJECT_NAME} ${LIBS})
 
-set_target_properties (${PROJECT_NAME} PROPERTIES
+set_target_properties(${PROJECT_NAME} PROPERTIES
         CXX_STANDARD 17
         CXX_STANDARD_REQUIRED TRUE
         CXX_EXTENSIONS FALSE
@@ -58,8 +58,8 @@ function(add_shader TARGET SHADER)
     target_sources(${TARGET} PRIVATE ${current-output-path})
 endfunction(add_shader)
 
-foreach(shader ${SHADER_FILES})
+foreach (shader ${SHADER_FILES})
     get_filename_component(p ${shader} NAME)
     message(STATUS "Building shader ${p}, ${TARGET}")
-    add_shader(nomad ${p})
-endforeach()
+    add_shader(${PROJECT_NAME} ${p})
+endforeach ()

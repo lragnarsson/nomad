@@ -7,9 +7,8 @@
 
 #include "genom/g_device.h"
 #include "genom/g_window.h"
-#include "genom/g_pipeline.h"
-#include "genom/g_swap_chain.h"
-#include "genom/g_model.h"
+#include "genom/g_game_object.h"
+#include "genom/g_renderer.h"
 
 #include <memory>
 #include <vector>
@@ -31,31 +30,13 @@ namespace nomad {
         void run();
 
     private:
-        void loadModels();
-
-        void createPipelineLayout();
-
-        void createPipeline();
-
-        void createCommandBuffers();
-
-        void freeCommandBuffers();
-
-        void drawFrame();
-
-        void recreateSwapChain();
-
-        void recordCommandBuffer(int imageIndex);
+        void loadGameObjects();
 
         genom::GWindow gWindow{WIDTH, HEIGHT, "Hello Vulkan!"};
         genom::GDevice gDevice{gWindow};
+        genom::GRenderer gRenderer{gWindow, gDevice};
 
-        std::unique_ptr<genom::GSwapChain> gSwapChain;
-        std::unique_ptr<genom::GPipeline> gPipeline;
-        VkPipelineLayout pipelineLayout;
-        std::vector<VkCommandBuffer> commandBuffers;
-
-        std::unique_ptr<genom::GModel> gModel;
+        std::vector<genom::GGameObject> gameObjects;
     };
 }
 
