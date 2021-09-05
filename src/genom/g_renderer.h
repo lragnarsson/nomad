@@ -27,6 +27,8 @@ namespace genom {
 
         VkRenderPass getSwapChainRenderPass() const { return gSwapChain->getRenderPass(); }
 
+        float getAspectRatio() const { return gSwapChain->extentAspectRatio(); }
+
         bool isFrameInProgress() const { return isFrameStarted; }
 
         VkCommandBuffer getCurrentCommandBuffer() const {

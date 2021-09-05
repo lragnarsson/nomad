@@ -4,6 +4,7 @@
 
 #include "render_test_1.h"
 #include "genom/simple_render_system.h"
+#include "genom/g_camera.h"
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -22,14 +23,18 @@ namespace nomad {
     RenderTest1::~RenderTest1() {}
 
     void RenderTest1::run() {
-
         genom::SimpleRenderSystem simpleRenderSystem{gDevice, gRenderer.getSwapChainRenderPass()};
+        genom::GCamera camera{};
+
         while (!gWindow.shouldClose()) {
             glfwPollEvents();
+            float aspect = gRenderer.getAspectRatio();
+            //camera.setOrthographicProjection(-aspect, aspect, -1, 1, -1, 1);
+            camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 10.f);
 
             if (auto commandBuffer = gRenderer.beginFrame()) {
                 gRenderer.beginSwapChainRenderPass(commandBuffer);
-                simpleRenderSystem.renderGameObjects(commandBuffer, gameObjects);
+                simpleRenderSystem.renderGameObjects(commandBuffer, gameObjects, camera);
                 gRenderer.endSwapChainRenderPass(commandBuffer);
                 gRenderer.endFrame();
             }
@@ -102,7 +107,7 @@ namespace nomad {
         std::shared_ptr<genom::GModel> gModel = createCubeModel(gDevice, {0.f, 0.f, 0.f});
         auto cube = genom::GGameObject::createGameObject();
         cube.model = gModel;
-        cube.transform.translation = {0.f, 0.f, .5f};
+        cube.transform.translation = {0.f, 0.f, 2.5f};
         cube.transform.scale = {.5f, .5f, .5f};
         gameObjects.push_back(std::move(cube));
     }
