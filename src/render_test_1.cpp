@@ -13,6 +13,7 @@
 #include <glm/gtc/constants.hpp>
 
 #include <array>
+#include <chrono>
 
 namespace nomad {
 
@@ -25,12 +26,26 @@ namespace nomad {
     void RenderTest1::run() {
         genom::SimpleRenderSystem simpleRenderSystem{gDevice, gRenderer.getSwapChainRenderPass()};
         genom::GCamera camera{};
+        camera.setViewTarget(glm::vec3{-1.f, -2.f, 0.f}, glm::vec3{0.f, 0.f, 2.5f});
+
+        auto viewerObject = genom::GGameObject::createGameObject();
+        input::KeyboardMovementController cameraController{};
+
+        auto currentTime = std::chrono::high_resolution_clock::now();
 
         while (!gWindow.shouldClose()) {
             glfwPollEvents();
+
+            auto newTime = std::chrono::high_resolution_clock::now();
+            float frameTime = std::chrono::duration<float, std::chrono::seconds::period>(newTime - currentTime).count();
+            currentTime = newTime;
+            //frameTime = glm::min(frameTime, MAX_FRAME_TIME);
+
+            cameraController.moveInPlaneXZ(gWindow.getGLFWwindow(), frameTime, viewerObject);
+            camera.setViewYXZ(viewerObject.transform.translation, viewerObject.transform.rotation);
+
             float aspect = gRenderer.getAspectRatio();
-            //camera.setOrthographicProjection(-aspect, aspect, -1, 1, -1, 1);
-            camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 10.f);
+            camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 50.f);
 
             if (auto commandBuffer = gRenderer.beginFrame()) {
                 gRenderer.beginSwapChainRenderPass(commandBuffer);
@@ -39,76 +54,16 @@ namespace nomad {
                 gRenderer.endFrame();
             }
         }
-
         vkDeviceWaitIdle(gDevice.device());
     }
 
-    // temporary helper function, creates a 1x1x1 cube centered at offset
-    std::unique_ptr<genom::GModel> createCubeModel(genom::GDevice &device, glm::vec3 offset) {
-        std::vector<genom::GModel::Vertex> vertices{
-
-                // left face (white)
-                {{-.5f, -.5f, -.5f},  {.9f, .9f, .9f}},
-                {{-.5f, .5f,  .5f},   {.9f, .9f, .9f}},
-                {{-.5f, -.5f, .5f},   {.9f, .9f, .9f}},
-                {{-.5f, -.5f, -.5f},  {.9f, .9f, .9f}},
-                {{-.5f, .5f,  -.5f},  {.9f, .9f, .9f}},
-                {{-.5f, .5f,  .5f},   {.9f, .9f, .9f}},
-
-                // right face (yellow)
-                {{.5f,  -.5f, -.5f},  {.8f, .8f, .1f}},
-                {{.5f,  .5f,  .5f},   {.8f, .8f, .1f}},
-                {{.5f,  -.5f, .5f},   {.8f, .8f, .1f}},
-                {{.5f,  -.5f, -.5f},  {.8f, .8f, .1f}},
-                {{.5f,  .5f,  -.5f},  {.8f, .8f, .1f}},
-                {{.5f,  .5f,  .5f},   {.8f, .8f, .1f}},
-
-                // top face (orange, remember y axis points down)
-                {{-.5f, -.5f, -.5f},  {.9f, .6f, .1f}},
-                {{.5f,  -.5f, .5f},   {.9f, .6f, .1f}},
-                {{-.5f, -.5f, .5f},   {.9f, .6f, .1f}},
-                {{-.5f, -.5f, -.5f},  {.9f, .6f, .1f}},
-                {{.5f,  -.5f, -.5f},  {.9f, .6f, .1f}},
-                {{.5f,  -.5f, .5f},   {.9f, .6f, .1f}},
-
-                // bottom face (red)
-                {{-.5f, .5f,  -.5f},  {.8f, .1f, .1f}},
-                {{.5f,  .5f,  .5f},   {.8f, .1f, .1f}},
-                {{-.5f, .5f,  .5f},   {.8f, .1f, .1f}},
-                {{-.5f, .5f,  -.5f},  {.8f, .1f, .1f}},
-                {{.5f,  .5f,  -.5f},  {.8f, .1f, .1f}},
-                {{.5f,  .5f,  .5f},   {.8f, .1f, .1f}},
-
-                // nose face (blue)
-                {{-.5f, -.5f, 0.5f},  {.1f, .1f, .8f}},
-                {{.5f,  .5f,  0.5f},  {.1f, .1f, .8f}},
-                {{-.5f, .5f,  0.5f},  {.1f, .1f, .8f}},
-                {{-.5f, -.5f, 0.5f},  {.1f, .1f, .8f}},
-                {{.5f,  -.5f, 0.5f},  {.1f, .1f, .8f}},
-                {{.5f,  .5f,  0.5f},  {.1f, .1f, .8f}},
-
-                // tail face (green)
-                {{-.5f, -.5f, -0.5f}, {.1f, .8f, .1f}},
-                {{.5f,  .5f,  -0.5f}, {.1f, .8f, .1f}},
-                {{-.5f, .5f,  -0.5f}, {.1f, .8f, .1f}},
-                {{-.5f, -.5f, -0.5f}, {.1f, .8f, .1f}},
-                {{.5f,  -.5f, -0.5f}, {.1f, .8f, .1f}},
-                {{.5f,  .5f,  -0.5f}, {.1f, .8f, .1f}},
-
-        };
-        for (auto &v: vertices) {
-            v.position += offset;
-        }
-        return std::make_unique<genom::GModel>(device, vertices);
-    }
-
-
     void RenderTest1::loadGameObjects() {
-        std::shared_ptr<genom::GModel> gModel = createCubeModel(gDevice, {0.f, 0.f, 0.f});
-        auto cube = genom::GGameObject::createGameObject();
-        cube.model = gModel;
-        cube.transform.translation = {0.f, 0.f, 2.5f};
-        cube.transform.scale = {.5f, .5f, .5f};
-        gameObjects.push_back(std::move(cube));
+        std::shared_ptr<genom::GModel> gModel = genom::GModel::createModelFromFile(gDevice,
+                                                                                   "/Users/lage/Development/nomad/res/models/flat_vase.obj");
+        auto gameObject = genom::GGameObject::createGameObject();
+        gameObject.model = gModel;
+        gameObject.transform.translation = {0.f, 0.5f, 2.5f};
+        gameObject.transform.scale = glm::vec3{1.f, 0.5, 2.f};
+        gameObjects.push_back(std::move(gameObject));
     }
 }

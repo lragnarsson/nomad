@@ -5,6 +5,7 @@
 #ifndef NOMAD_RENDER_TEST_1_H
 #define NOMAD_RENDER_TEST_1_H
 
+#include "input/keyboard_movement_controller.h"
 #include "genom/g_device.h"
 #include "genom/g_window.h"
 #include "genom/g_game_object.h"

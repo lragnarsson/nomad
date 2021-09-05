@@ -25,6 +25,7 @@ find_package(glfw3 3.3 REQUIRED)
 find_package(glm REQUIRED)
 set(LIBS Vulkan::Vulkan glfw glm::glm)
 message(STATUS "Found all libraries: ${LIBS}")
+include_directories("${CMAKE_SOURCE_DIR}/lib/tinyobjloader")
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES} ${HEADER_FILES})
 target_link_libraries(${PROJECT_NAME} ${LIBS})
