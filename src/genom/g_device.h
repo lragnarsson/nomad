@@ -42,7 +42,7 @@ namespace genom {
         // Not copyable or movable
         GDevice(const GDevice &) = delete;
 
-        void operator=(const GDevice &) = delete;
+        GDevice &operator=(const GDevice &) = delete;
 
         GDevice(GDevice &&) = delete;
 

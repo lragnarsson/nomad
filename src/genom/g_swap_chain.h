@@ -7,10 +7,9 @@
 
 #include "g_device.h"
 
-// vulkan headers
 #include <vulkan/vulkan.h>
 
-// std lib headers
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -22,11 +21,13 @@ namespace genom {
 
         GSwapChain(GDevice &deviceRef, VkExtent2D windowExtent);
 
+        GSwapChain(GDevice &deviceRef, VkExtent2D windowExtent, std::shared_ptr<GSwapChain> previous);
+
         ~GSwapChain();
 
         GSwapChain(const GSwapChain &) = delete;
 
-        void operator=(const GSwapChain &) = delete;
+        GSwapChain &operator=(const GSwapChain &) = delete;
 
         VkFramebuffer getFrameBuffer(int index) { return swapChainFramebuffers[index]; }
 
@@ -55,6 +56,8 @@ namespace genom {
         VkResult submitCommandBuffers(const VkCommandBuffer *buffers, uint32_t *imageIndex);
 
     private:
+        void init();
+
         void createSwapChain();
 
         void createImageViews();
@@ -92,8 +95,10 @@ namespace genom {
         VkExtent2D windowExtent;
 
         VkSwapchainKHR swapChain;
+        std::shared_ptr<GSwapChain> oldSwapChain;
 
-        std::vector<VkSemaphore> imageAvailableSemaphores;
+        std::vector<VkSemaphore>
+                imageAvailableSemaphores;
         std::vector<VkSemaphore> renderFinishedSemaphores;
         std::vector<VkFence> inFlightFences;
         std::vector<VkFence> imagesInFlight;

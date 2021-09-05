@@ -39,12 +39,18 @@ namespace nomad {
 
         void createCommandBuffers();
 
+        void freeCommandBuffers();
+
         void drawFrame();
+
+        void recreateSwapChain();
+
+        void recordCommandBuffer(int imageIndex);
 
         genom::GWindow gWindow{WIDTH, HEIGHT, "Hello Vulkan!"};
         genom::GDevice gDevice{gWindow};
-        genom::GSwapChain gSwapChain{gDevice, gWindow.getExtent()};
 
+        std::unique_ptr<genom::GSwapChain> gSwapChain;
         std::unique_ptr<genom::GPipeline> gPipeline;
         VkPipelineLayout pipelineLayout;
         std::vector<VkCommandBuffer> commandBuffers;
