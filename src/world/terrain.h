@@ -6,31 +6,16 @@
 #define NOMAD_TERRAIN_H
 
 #include "../genom/g_vertex.h"
+#include "terrain_map.h"
+#include "terrain_map_3d.h"
+#include "world_constants.h"
 
 namespace world {
-    static const int WORLD_SEED = 42;
-    static const int MAP_HEIGHT = 128;
-    static const int MAP_WIDTH = 128;
-    static const int NUM_QUADS = MAP_HEIGHT * MAP_WIDTH;
-    static const int QUAD_VERTICES = 6;
-    static const int QUAD_INDICES = 6;
-    static const float QUAD_SIZE = 1.f;
+    struct Tile {
+        std::vector<genom::GVertex> vertices;
+        std::vector<uint32_t> indices;
 
-    struct TerrainMap {
-        float data[MAP_HEIGHT][MAP_WIDTH] = {{0.f}};
-
-        float getAt(int x, int z) const;
-
-        void AddSimplexNoise(float frequencyFactor, float amplitudeFactor);
-    };
-
-    struct TerrainQuad {
-        genom::GVertex vertices[QUAD_VERTICES] = {};
-        uint32_t indices[QUAD_INDICES] = {};
-
-        TerrainQuad() = default;
-
-        TerrainQuad(int x, int y, const TerrainMap &terrainMap);
+        Tile(const int x, const int y, const TerrainMap &terrainMap, const TerrainMap3D &colorMap);
 
     private:
         int x, z;
@@ -38,19 +23,18 @@ namespace world {
 
         float InterpHeightBiLinear(int xi, int zi, const TerrainMap &heightMap) const;
 
-        glm::vec3
-        CalculateNormal(glm::vec3 vertexPos, int xi, int zi, int nxi, int nzi, const TerrainMap &heightMap) const;
+        glm::vec3 CalculateNormal(glm::vec3 p1, glm::vec3 p2, glm::vec3 p3) const;
     };
 
     class Terrain {
     public:
+        std::vector<Tile> tiles;
+
         Terrain();
 
-        TerrainQuad quads[NUM_QUADS];
+
     private:
-        void GenerateTerrainQuads(const TerrainMap &heightMap);
+        void GenerateTerrainQuads(const TerrainMap &heightMap, const TerrainMap3D &colorMap);
     };
-
-
 }
 #endif //NOMAD_TERRAIN_H

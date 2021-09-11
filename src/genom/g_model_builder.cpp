@@ -104,11 +104,11 @@ namespace genom {
         vertices.clear();
         indices.clear();
 
-        for (int i = 0; i < world::NUM_QUADS; i++) {
-            for (int j = 0; j < world::QUAD_VERTICES; j++) {
-                auto v = terrain.quads[i].vertices[j];
+        for (int i = 0; i < world::NUM_TILES; i++) {
+            for (int j = 0; j < world::TILE_VERTICES; j++) {
+                auto v = terrain.tiles[i].vertices[j];
                 vertices.push_back(v);
-                indices.push_back(world::QUAD_VERTICES * i + terrain.quads[i].indices[j]);
+                indices.push_back(world::TILE_VERTICES * i + terrain.tiles[i].indices[j]);
                 // std::cout << v << "idx: " << idx << std::endl;
             }
         }

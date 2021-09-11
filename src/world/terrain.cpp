@@ -3,58 +3,38 @@
 //
 
 #include "terrain.h"
-
-#include <FastNoiseLite.h>
-
-#include <iostream>
+#include "terrain_map.h"
 
 namespace world {
-
-    void TerrainMap::AddSimplexNoise(float frequencyFactor, float amplitudeFactor) {
-        FastNoiseLite noise;
-        noise.SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2);
-        noise.SetSeed(WORLD_SEED);
-
-        for (int i = 0; i < MAP_HEIGHT; i++) {
-            for (int j = 0; j < MAP_WIDTH; j++) {
-                data[i][j] -= amplitudeFactor * noise.GetNoise(i * frequencyFactor, j * frequencyFactor);
-            }
-        }
-    }
-
-    float TerrainMap::getAt(const int x, const int z) const {
-        int clampedX = std::max(0, std::min(x, MAP_WIDTH - 1));
-        int clampedZ = std::max(0, std::min(z, MAP_HEIGHT - 1));
-        return data[clampedX][clampedZ];
-    }
-
     /** Generate terrain in XZ plane from heightmap */
-    TerrainQuad::TerrainQuad(const int x, const int z, const TerrainMap &heightMap) : x{x}, z{z},
-                                                                                      y{heightMap.getAt(x, z)} {
+    Tile::Tile(const int x, const int z, const TerrainMap &heightMap, const TerrainMap3D &colorMap) :
+            x{x}, z{z}, y{heightMap.getAt(x, z)} {
+        vertices.reserve(TILE_VERTICES);
+        indices.reserve(TILE_VERTICES);
         // 0---1      3
         // | /      / |
         // 2      5---4
         // Local quad coordinates of the two triangles:
-        const int xi[QUAD_INDICES] = {0, 1, 0, 1, 1, 0};
-        const int zi[QUAD_INDICES] = {0, 0, 1, 0, 1, 1};
-        // Local coordinates of points to use for normal vector calculation:
-        const int nxi[QUAD_INDICES] = {0, 1, -1, 1, 0, -1};
-        const int nzi[QUAD_INDICES] = {-1, 0, 0, 0, 1, 0};
-
-        for (int i = 0; i < QUAD_INDICES; i++) {
-            vertices[i].position.x = QUAD_SIZE * (static_cast<float>(x + xi[i])) - 0.5f * QUAD_SIZE;
-            vertices[i].position.z = QUAD_SIZE * (static_cast<float>(z + zi[i])) - 0.5f * QUAD_SIZE;
+        const int xi[TILE_INDICES] = {0, 1, 0, 1, 1, 0};
+        const int zi[TILE_INDICES] = {0, 0, 1, 0, 1, 1};
+        for (int i = 0; i < TILE_INDICES; i++) {
+            vertices[i].position.x = TILE_SIZE * (static_cast<float>(x + xi[i])) - 0.5f * TILE_SIZE;
+            vertices[i].position.z = TILE_SIZE * (static_cast<float>(z + zi[i])) - 0.5f * TILE_SIZE;
             vertices[i].position.y = InterpHeightBiLinear(xi[i], zi[i], heightMap);
 
-            vertices[i].normal = CalculateNormal(vertices[i].position, xi[i], zi[i], nxi[i], nzi[i], heightMap);
+            vertices[i].color = colorMap.getAt(x, z);
             //vertices[i].color = i < 3 ? glm::vec3{.6f, 0.f, 0.f} : glm::vec3{0.f, .6f, 0.f};
-            vertices[i].color = glm::vec3{0.7f, 0.7f, 0.6f};
 
             indices[i] = i;
         }
+        // Flat Shading Normals:
+        const glm::vec3 n1 = CalculateNormal(vertices[0].position, vertices[1].position, vertices[2].position);
+        vertices[0].normal = vertices[1].normal = vertices[2].normal = n1;
+        const glm::vec3 n2 = CalculateNormal(vertices[4].position, vertices[5].position, vertices[3].position);
+        vertices[3].normal = vertices[4].normal = vertices[5].normal = n2;
     }
 
-    float TerrainQuad::InterpHeightBiLinear(const int xi, const int zi, const TerrainMap &heightMap) const {
+    float Tile::InterpHeightBiLinear(const int xi, const int zi, const TerrainMap &heightMap) const {
         int deltaX = 2 * xi - 1;
         int deltaZ = 2 * zi - 1;
         return 0.25f *
@@ -64,33 +44,34 @@ namespace world {
                 heightMap.getAt(x + deltaX, z + deltaZ));
     }
 
-    glm::vec3
-    TerrainQuad::CalculateNormal(const glm::vec3 vertexPos, const int xi, const int zi, const int nxi, const int nzi,
-                                 const TerrainMap &heightMap) const {
-        const float deltaX = (2.f * static_cast<float>(xi) - 1.f) / QUAD_SIZE;
-        const float deltaZ = (2.f * static_cast<float>(zi) - 1.f) / QUAD_SIZE;
-
-        const glm::vec3 u = glm::normalize(glm::vec3{x, y, z} - vertexPos);
-        const glm::vec3 v = glm::normalize(
-                glm::vec3{x, y, z} - glm::vec3{x + nxi, heightMap.getAt(x + nxi, z + nzi), z + nzi});
-        return glm::cross(u, v);
+    glm::vec3 Tile::CalculateNormal(const glm::vec3 p0, const glm::vec3 p1, const glm::vec3 p2) const {
+        const glm::vec3 u = glm::normalize(p2 - p0);
+        const glm::vec3 v = glm::normalize(p1 - p0);
+        return -glm::cross(u, v);
     }
 
-    void Terrain::GenerateTerrainQuads(const TerrainMap &heightMap) {
-        int numQuads = MAP_WIDTH * MAP_HEIGHT;
-
+    void Terrain::GenerateTerrainQuads(const TerrainMap &heightMap, const TerrainMap3D &colorMap) {
+        int numQuads = CHUNK_WIDTH * CHUNK_HEIGHT;
         for (int i = 0; i < numQuads; i++) {
-            int x = i % MAP_WIDTH;
-            int z = i / MAP_WIDTH;
-            quads[i] = TerrainQuad(x, z, heightMap);
+            int x = i % CHUNK_WIDTH;
+            int z = i / CHUNK_WIDTH;
+            tiles[i] = Tile(x, z, heightMap, colorMap);
         }
     }
 
     Terrain::Terrain() {
-        world::TerrainMap heightMap;
-        heightMap.AddSimplexNoise(2.f, 2.f);
-        heightMap.AddSimplexNoise(6.f, 0.8f);
-        heightMap.AddSimplexNoise(16.f, 0.2f);
-        GenerateTerrainQuads(heightMap);
+        tiles.reserve(NUM_TILES);
+
+        world::TerrainMap heightMap{0.f};
+        heightMap.AddSimplexNoise(0.5f, 8.f);
+        heightMap.AddSimplexNoise(4.f, 1.f);
+        heightMap.AddSimplexNoise(16.f, 0.1f);
+
+        world::TerrainMap3D colorMap{glm::vec3(.2f, .4f, .2f)};
+        colorMap.AddSimplexNoise(glm::vec3(3.f, 3.f, 3.f),
+                                 glm::vec3(.1f, .1f, .1f));
+        colorMap.Rescale(glm::vec3(0.3f, 0.6f, 0.3f), glm::vec3(0.6f, .9f, .6f));
+        GenerateTerrainQuads(heightMap, colorMap);
     }
+
 }

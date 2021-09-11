@@ -66,7 +66,6 @@ namespace nomad {
         terrainObject.transform.scale = glm::vec3{1.f, 1.f, 1.f};
         gameObjects.push_back(std::move(terrainObject));
 
-
         std::shared_ptr<genom::GModel> gModel = genom::GModel::createModelFromFile(gDevice,
                                                                                    "/Users/lage/Development/nomad/res/models/flat_vase.obj");
         auto gameObject = genom::GGameObject::createGameObject();
