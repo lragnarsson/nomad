@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.20)
 project(nomad)
 set(CMAKE_CXX_STANDARD 17)
+
+set(CMAKE_MODULE_PATH "/Users/lage/Development/cmake/Modules/;${CMAKE_MODULE_PATH}")
 set(GLSLC /Users/lage/VulkanSDK/1.2.189.0/macOS/bin/glslc)
 
 # Find all cpp source files
@@ -23,9 +25,11 @@ message(STATUS "Found shader files: ${SHADER_FILES}")
 find_package(Vulkan REQUIRED)
 find_package(glfw3 3.3 REQUIRED)
 find_package(glm REQUIRED)
+
 set(LIBS Vulkan::Vulkan glfw glm::glm)
 message(STATUS "Found all libraries: ${LIBS}")
 include_directories("${CMAKE_SOURCE_DIR}/lib/tinyobjloader")
+include_directories("${CMAKE_SOURCE_DIR}/lib/FastNoiseLite")
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES} ${HEADER_FILES})
 target_link_libraries(${PROJECT_NAME} ${LIBS})
@@ -36,7 +40,9 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
         CXX_EXTENSIONS FALSE
         )
 
-# Compile Shaders
+######################
+#------SHADERS-------#
+######################
 function(add_shader TARGET SHADER)
     find_program(GLSLC glslc)
 

@@ -73,8 +73,8 @@ namespace genom {
         shaderStages[1].pNext = nullptr;
         shaderStages[1].pSpecializationInfo = nullptr;
 
-        auto attributeDescriptions = GModel::Vertex::getAttributeDescriptions();
-        auto bindingDescriptions = GModel::Vertex::getBindingDescriptions();
+        auto attributeDescriptions = GVertex::getAttributeDescriptions();
+        auto bindingDescriptions = GVertex::getBindingDescriptions();
 
         VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
         vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -141,7 +141,7 @@ namespace genom {
         configInfo.rasterizationInfo.rasterizerDiscardEnable = VK_FALSE;
         configInfo.rasterizationInfo.polygonMode = VK_POLYGON_MODE_FILL;
         configInfo.rasterizationInfo.lineWidth = 1.0f;
-        configInfo.rasterizationInfo.cullMode = VK_CULL_MODE_NONE;
+        configInfo.rasterizationInfo.cullMode = VK_CULL_MODE_FRONT_BIT;
         configInfo.rasterizationInfo.frontFace = VK_FRONT_FACE_CLOCKWISE;
         configInfo.rasterizationInfo.depthBiasEnable = VK_FALSE;
         configInfo.rasterizationInfo.depthBiasConstantFactor = 0.0f;  // Optional

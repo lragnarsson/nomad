@@ -45,7 +45,7 @@ namespace nomad {
             camera.setViewYXZ(viewerObject.transform.translation, viewerObject.transform.rotation);
 
             float aspect = gRenderer.getAspectRatio();
-            camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 50.f);
+            camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 150.f);
 
             if (auto commandBuffer = gRenderer.beginFrame()) {
                 gRenderer.beginSwapChainRenderPass(commandBuffer);
@@ -58,12 +58,21 @@ namespace nomad {
     }
 
     void RenderTest1::loadGameObjects() {
+        auto terrain = world::Terrain();
+        std::shared_ptr<genom::GModel> terrainModel = genom::GModel::createModelFromTerrain(gDevice, terrain);
+        auto terrainObject = genom::GGameObject::createGameObject();
+        terrainObject.model = terrainModel;
+        terrainObject.transform.translation = {0.f, 0.f, 0.f};
+        terrainObject.transform.scale = glm::vec3{1.f, 1.f, 1.f};
+        gameObjects.push_back(std::move(terrainObject));
+
+
         std::shared_ptr<genom::GModel> gModel = genom::GModel::createModelFromFile(gDevice,
                                                                                    "/Users/lage/Development/nomad/res/models/flat_vase.obj");
         auto gameObject = genom::GGameObject::createGameObject();
         gameObject.model = gModel;
-        gameObject.transform.translation = {0.f, 0.5f, 2.5f};
-        gameObject.transform.scale = glm::vec3{1.f, 0.5, 2.f};
+        gameObject.transform.translation = {0.f, 0.f, 0.f};
+        gameObject.transform.scale = glm::vec3{1.f, 1.f, 1.f};
         gameObjects.push_back(std::move(gameObject));
     }
 }
