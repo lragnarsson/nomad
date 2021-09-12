@@ -5,6 +5,8 @@
 #include "render_test_1.h"
 #include "genom/simple_render_system.h"
 #include "genom/g_camera.h"
+#include "world/plains_chunk_type.h"
+#include "world/world.h"
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -12,7 +14,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
 
-#include <array>
 #include <chrono>
 
 namespace nomad {
@@ -45,7 +46,7 @@ namespace nomad {
             camera.setViewYXZ(viewerObject.transform.translation, viewerObject.transform.rotation);
 
             float aspect = gRenderer.getAspectRatio();
-            camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 150.f);
+            camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 250.f);
 
             if (auto commandBuffer = gRenderer.beginFrame()) {
                 gRenderer.beginSwapChainRenderPass(commandBuffer);
@@ -58,13 +59,8 @@ namespace nomad {
     }
 
     void RenderTest1::loadGameObjects() {
-        auto terrain = world::Terrain();
-        std::shared_ptr<genom::GModel> terrainModel = genom::GModel::createModelFromTerrain(gDevice, terrain);
-        auto terrainObject = genom::GGameObject::createGameObject();
-        terrainObject.model = terrainModel;
-        terrainObject.transform.translation = {0.f, 0.f, 0.f};
-        terrainObject.transform.scale = glm::vec3{1.f, 1.f, 1.f};
-        gameObjects.push_back(std::move(terrainObject));
+        auto world = world::World();
+        world.GetTerrainObjects(0, 0, gDevice, gameObjects);
 
         std::shared_ptr<genom::GModel> gModel = genom::GModel::createModelFromFile(gDevice,
                                                                                    "/Users/lage/Development/nomad/res/models/flat_vase.obj");

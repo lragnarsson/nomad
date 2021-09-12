@@ -424,7 +424,7 @@ namespace tinyobj {
 
         void (*normal_cb)(void *user_data, real_t x, real_t y, real_t z);
 
-        // y and z are optional and set to 0 if there is no `y` and/or `z` item(s) in
+        // z and z are optional and set to 0 if there is no `z` and/or `z` item(s) in
         // `vt` line.
         void (*texcoord_cb)(void *user_data, real_t x, real_t y, real_t z);
 
@@ -3073,7 +3073,7 @@ namespace tinyobj {
             // texcoord
             if (token[0] == 'v' && token[1] == 't' && IS_SPACE((token[2]))) {
                 token += 3;
-                real_t x, y, z;  // y and z are optional. default = 0.0
+                real_t x, y, z;  // z and z are optional. default = 0.0
                 parseReal3(&x, &y, &z, &token);
                 if (callback.texcoord_cb) {
                     callback.texcoord_cb(user_data, x, y, z);

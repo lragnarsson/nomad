@@ -7,7 +7,7 @@
 
 #include "g_device.h"
 #include "g_vertex.h"
-#include "../world/terrain.h"
+#include "../world/chunk.h"
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -25,7 +25,7 @@ namespace genom {
 
             void loadModel(const std::string &filePath);
 
-            void loadTerrain(const world::Terrain &terrain);
+            void loadTerrain(const world::Chunk &terrain);
         };
 
         GModel(GDevice &device, const GModel::Builder &builder);
@@ -38,7 +38,7 @@ namespace genom {
 
         static std::unique_ptr<GModel> createModelFromFile(GDevice &device, const std::string &filePath);
 
-        static std::unique_ptr<GModel> createModelFromTerrain(GDevice &device, const world::Terrain &terrain);
+        static std::unique_ptr<GModel> createModelFromTerrain(GDevice &device, const world::Chunk &terrain);
 
         void bind(VkCommandBuffer commandBuffer);
 

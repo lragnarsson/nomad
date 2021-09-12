@@ -19,9 +19,11 @@ namespace world {
             clear(value);
         }
 
-        glm::vec3 getAt(int x, int z) const { return data[getChunkIndex(x, z)]; }
+        glm::vec3 getAt(int x, int z) const { return data[getTileIndex(x, z)]; }
 
-        void setAt(const int x, const int z, glm::vec3 value) { data[getChunkIndex(x, z)] = value; }
+        void setAt(const int x, const int z, glm::vec3 value) { data[getTileIndex(x, z)] = value; }
+
+        glm::vec3 InterpBiLinear(int x, int z, int xi, int zi) const;
 
         glm::vec3 getMax() const { return max; }
 
@@ -31,7 +33,7 @@ namespace world {
 
         void Rescale(glm::vec3 min, glm::vec3 max);
 
-        void AddSimplexNoise(glm::vec3 frequencyFactors, glm::vec3 amplitudeFactors);
+        void AddSimplexNoise(glm::vec3 frequencyFactors, glm::vec3 amplitudeFactors, int seed);
 
     private:
         std::vector<glm::vec3> data;

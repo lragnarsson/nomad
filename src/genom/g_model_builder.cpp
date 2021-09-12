@@ -38,9 +38,9 @@ namespace genom {
         return std::make_unique<GModel>(device, builder);
     }
 
-    std::unique_ptr<GModel> GModel::createModelFromTerrain(GDevice &device, const world::Terrain &terrain) {
+    std::unique_ptr<GModel> GModel::createModelFromTerrain(GDevice &device, const world::Chunk &terrainChunk) {
         GModel::Builder builder{};
-        builder.loadTerrain(terrain);
+        builder.loadTerrain(terrainChunk);
         return std::make_unique<GModel>(device, builder);
     }
 
@@ -100,11 +100,11 @@ namespace genom {
         }
     }
 
-    void GModel::Builder::loadTerrain(const world::Terrain &terrain) {
+    void GModel::Builder::loadTerrain(const world::Chunk &terrain) {
         vertices.clear();
         indices.clear();
 
-        for (int i = 0; i < world::NUM_TILES; i++) {
+        for (int i = 0; i < world::NUM_CHUNK_TILES; i++) {
             for (int j = 0; j < world::TILE_VERTICES; j++) {
                 auto v = terrain.tiles[i].vertices[j];
                 vertices.push_back(v);

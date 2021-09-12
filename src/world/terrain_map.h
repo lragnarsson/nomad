@@ -12,7 +12,6 @@
 #include <vector>
 
 namespace world {
-    //TODO: Generics???
     class TerrainMap {
     public:
         TerrainMap(const float value) {
@@ -20,9 +19,11 @@ namespace world {
             clear(value);
         }
 
-        float getAt(int x, int z) const { return data[getChunkIndex(x, z)]; }
+        float getAt(int x, int z) const { return data[getTileIndex(x, z)]; }
 
-        void setAt(const int x, const int z, float value) { data[getChunkIndex(x, z)] = value; }
+        void setAt(const int x, const int z, float value) { data[getTileIndex(x, z)] = value; }
+
+        float InterpBiLinear(int x, int z, int xi, int zi) const;
 
         float getMax() const { return max; }
 
@@ -30,7 +31,7 @@ namespace world {
 
         void clear(float value);
 
-        void AddSimplexNoise(float frequencyFactor, float amplitudeFactor);
+        void AddSimplexNoise(float frequencyFactorX, float frequencyFactorY, float amplitudeFactor, int seed);
 
         void Rescale(float min, float max);
 

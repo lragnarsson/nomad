@@ -27,8 +27,8 @@ namespace input {
         void moveInPlaneXZ(GLFWwindow *window, float dt, genom::GGameObject &gameObject);
 
         KeyMappings keys{};
-        float moveSpeed{8.f};
-        float lookSpeed{2.5f};
+        float moveSpeed{25.f};
+        float lookSpeed{3.5f};
     };
 }
 
