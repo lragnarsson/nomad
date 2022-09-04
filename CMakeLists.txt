@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 project(nomad)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 set(CMAKE_MODULE_PATH "/Users/lage/Development/cmake/Modules/;${CMAKE_MODULE_PATH}")
 set(GLSLC /Users/lage/VulkanSDK/1.2.189.0/macOS/bin/glslc)
@@ -30,12 +30,13 @@ set(LIBS Vulkan::Vulkan glfw glm::glm)
 message(STATUS "Found all libraries: ${LIBS}")
 include_directories("${CMAKE_SOURCE_DIR}/lib/tinyobjloader")
 include_directories("${CMAKE_SOURCE_DIR}/lib/FastNoiseLite")
+include_directories("${CMAKE_SOURCE_DIR}/lib/Spline")
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES} ${HEADER_FILES})
 target_link_libraries(${PROJECT_NAME} ${LIBS})
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
-        CXX_STANDARD 17
+        CXX_STANDARD 20
         CXX_STANDARD_REQUIRED TRUE
         CXX_EXTENSIONS FALSE
         )

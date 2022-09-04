@@ -10,7 +10,6 @@
 #include "genom/g_window.h"
 #include "genom/g_game_object.h"
 #include "genom/g_renderer.h"
-#include "world/plains_chunk_type.h"
 
 #include <memory>
 #include <vector>

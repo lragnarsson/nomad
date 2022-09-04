@@ -5,7 +5,6 @@
 #include "render_test_1.h"
 #include "genom/simple_render_system.h"
 #include "genom/g_camera.h"
-#include "world/plains_chunk_type.h"
 #include "world/world.h"
 
 #define GLM_FORCE_RADIANS

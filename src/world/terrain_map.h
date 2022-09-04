@@ -15,11 +15,12 @@ namespace world {
     class TerrainMap {
     public:
         TerrainMap(const float value) {
-            data.reserve(CHUNK_WIDTH * CHUNK_HEIGHT);
+            data.reserve(extendedChunkSize);
             clear(value);
         }
 
         float getAt(int x, int z) const { return data[getTileIndex(x, z)]; }
+
 
         void setAt(const int x, const int z, float value) { data[getTileIndex(x, z)] = value; }
 
@@ -31,7 +32,8 @@ namespace world {
 
         void clear(float value);
 
-        void AddSimplexNoise(float frequencyFactorX, float frequencyFactorY, float amplitudeFactor, int seed);
+        void AddSimplexNoise(int x, int z, float frequencyFactorX, float frequencyFactorY,
+                             float amplitudeFactor);
 
         void Rescale(float min, float max);
 
@@ -39,6 +41,7 @@ namespace world {
         std::vector<float> data;
         float max = 0.f;
         float min = 0.f;
+        const int extendedChunkSize = (CHUNK_WIDTH + 2) * (CHUNK_LENGTH + 2);
     };
 }
 #endif //NOMAD_TERRAIN_MAP_H

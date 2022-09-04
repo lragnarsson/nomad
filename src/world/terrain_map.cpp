@@ -21,20 +21,22 @@ namespace world {
 
     void TerrainMap::Rescale(const float newMin, const float newMax) {
         const float scaleFactor = (newMax - newMin) / (max - min);
-        for (int i = 0; i < NUM_CHUNK_TILES; i++) {
+        for (int i = 0; i < TERRAIN_MAP_SIZE; i++) {
             data[i] = scaleFactor * data[i];
         }
     }
 
-    void TerrainMap::AddSimplexNoise(const float frequencyFactorX, const float frequencyFactorY,
-                                     const float amplitudeFactor, const int seed) {
+    void
+    TerrainMap::AddSimplexNoise(const int x, const int z, const float frequencyFactorX, const float frequencyFactorY,
+                                const float amplitudeFactor) {
         FastNoiseLite noise;
         noise.SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2);
-        noise.SetSeed(seed);
+        noise.SetSeed(WORLD_SEED);
 
-        for (int i = 0; i < NUM_CHUNK_TILES; i++) {
+        for (int i = 0; i < TERRAIN_MAP_SIZE; i++) {
             data[i] += amplitudeFactor *
-                       noise.GetNoise((float) getTileX(i) * frequencyFactorX, (float) getTileZ(i) * frequencyFactorY);
+                       noise.GetNoise((float) (x + getTileX(i)) * frequencyFactorX,
+                                      (float) (z + getTileZ(i)) * frequencyFactorY);
             if (data[i] > max) max = data[i];
             if (data[i] < min) min = data[i];
         }
@@ -42,7 +44,7 @@ namespace world {
     }
 
     void TerrainMap::clear(float value) {
-        for (int i = 0; i < NUM_CHUNK_TILES; i++) {
+        for (int i = 0; i < TERRAIN_MAP_SIZE; i++) {
             data[i] = value;
         }
         min = value;

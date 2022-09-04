@@ -30,7 +30,7 @@ namespace world {
             vertices[i].position.y = heightMap.InterpBiLinear(x, z, xi[i], zi[i]);
 
             vertices[i].color = colorMap.InterpBiLinear(x, z, xi[i], zi[i]);
-            //vertices[i].color = i < 3 ? glm::vec3{.6f, 0.f, 0.f} : glm::vec3{0.f, .6f, 0.f};
+            //vertices[i].color = i < 3 ? glm::vec3{.6f, 0.1f, 0.1f} : glm::vec3{0.1f, .6f, 0.1f};
         }
         // Flat Shading Normals:
         const glm::vec3 n1 = CalculateNormal(vertices[0].position, vertices[1].position, vertices[2].position);

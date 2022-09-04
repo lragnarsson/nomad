@@ -15,7 +15,7 @@ namespace world {
     class TerrainMap3D {
     public:
         TerrainMap3D(const glm::vec3 value) {
-            data.reserve(CHUNK_WIDTH * CHUNK_HEIGHT);
+            data.reserve(CHUNK_WIDTH * CHUNK_LENGTH);
             clear(value);
         }
 
@@ -33,7 +33,7 @@ namespace world {
 
         void Rescale(glm::vec3 min, glm::vec3 max);
 
-        void AddSimplexNoise(glm::vec3 frequencyFactors, glm::vec3 amplitudeFactors, int seed);
+        void AddSimplexNoise(int x_offset, int z_offset, glm::vec3 frequencyFactors, glm::vec3 amplitudeFactors);
 
     private:
         std::vector<glm::vec3> data;

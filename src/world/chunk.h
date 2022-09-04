@@ -10,24 +10,37 @@
 #include "terrain_map_3d.h"
 #include "world_constants.h"
 #include "tile.h"
-#include "chunk_type.h"
 
 namespace world {
     class Chunk {
     public:
         const int x;
         const int z;
-        const int seed;
 
-        const std::shared_ptr<ChunkType> chunkType_;
+        const TerrainMap continentalness;
+        const TerrainMap erosion;
+        const TerrainMap peakyness;
 
         const TerrainMap heightMap;
         const TerrainMap3D terrainColorMap;
         const std::vector<Tile> tiles;
 
-        Chunk(int x, int z, std::shared_ptr<ChunkType> chunkType);
+        Chunk(int x, int z);
 
-        static int ChunkSeed(int x, int z);
+        static int ChunkId(int x, int z);
+
+    private:
+        TerrainMap GenerateHeightMap() const;
+
+        TerrainMap3D GenerateTerrainColor() const;
+
+        TerrainMap GenerateContinentalness() const;
+
+        TerrainMap GenerateErosion() const;
+
+        TerrainMap GeneratePeakyness() const;
+
+        std::vector<Tile> GenerateTiles() const;
     };
 }
 #endif //NOMAD_CHUNK_H
