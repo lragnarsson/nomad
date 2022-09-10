@@ -16,48 +16,34 @@ namespace genom {
         createIndexBuffers(builder.indices);
     }
 
-    GModel::~GModel() {
-        vkDestroyBuffer(gDevice.device(), vertexBuffer, nullptr);
-        vkFreeMemory(gDevice.device(), vertexBufferMemory, nullptr);
-
-        if (hasIndexBuffer) {
-            vkDestroyBuffer(gDevice.device(), indexBuffer, nullptr);
-            vkFreeMemory(gDevice.device(), indexBufferMemory, nullptr);
-        }
-    }
-
+    GModel::~GModel() {}
 
     void GModel::createVertexBuffers(const std::vector<GVertex> &vertices) {
         vertexCount = static_cast<glm::uint32_t>(vertices.size());
         assert(vertexCount >= 3 && "GVertex count must be at least 3");
         VkDeviceSize bufferSize = sizeof(vertices[0]) * vertexCount;
+        uint32_t vertexSize = sizeof(vertices[0]);
 
-        // Staging
-        VkBuffer stagingBuffer;
-        VkDeviceMemory stagingBufferMemory;
-        gDevice.createBuffer(
-                bufferSize,
-                VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                stagingBuffer,
-                stagingBufferMemory);
-        void *data;
-        vkMapMemory(gDevice.device(), stagingBufferMemory, 0, bufferSize, 0, &data);
-        memcpy(data, vertices.data(), static_cast<size_t>(bufferSize));
-        vkUnmapMemory(gDevice.device(), stagingBufferMemory);
+        GBuffer stagingBuffer{
+            gDevice,
+            vertexSize,
+            vertexCount,
+            VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+        };
 
-        // Transfer to device local memory:
-        gDevice.createBuffer(
-                bufferSize,
+        stagingBuffer.map();
+        stagingBuffer.writeToBuffer((void *)vertices.data());
+
+        vertexBuffer = std::make_unique<GBuffer>(
+                gDevice,
+                vertexSize,
+                vertexCount,
                 VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-                VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                vertexBuffer,
-                vertexBufferMemory);
+                VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
-        gDevice.copyBuffer(stagingBuffer, vertexBuffer, bufferSize);
 
-        vkDestroyBuffer(gDevice.device(), stagingBuffer, nullptr);
-        vkFreeMemory(gDevice.device(), stagingBufferMemory, nullptr);
+        gDevice.copyBuffer(stagingBuffer.getBuffer(), vertexBuffer->getBuffer(), bufferSize);
     }
 
     // TODO: Create generic function
@@ -69,32 +55,28 @@ namespace genom {
         }
 
         VkDeviceSize bufferSize = sizeof(indices[0]) * indexCount;
-        // Staging
-        VkBuffer stagingBuffer;
-        VkDeviceMemory stagingBufferMemory;
-        gDevice.createBuffer(
-                bufferSize,
-                VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                stagingBuffer,
-                stagingBufferMemory);
-        void *data;
-        vkMapMemory(gDevice.device(), stagingBufferMemory, 0, bufferSize, 0, &data);
-        memcpy(data, indices.data(), static_cast<size_t>(bufferSize));
-        vkUnmapMemory(gDevice.device(), stagingBufferMemory);
+        uint32_t indexSize = sizeof(indices[0]);
 
-        // Transfer to device local memory:
-        gDevice.createBuffer(
-                bufferSize,
+        GBuffer stagingBuffer{
+            gDevice,
+            indexSize,
+            indexCount,
+            VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+        };
+
+        stagingBuffer.map();
+        stagingBuffer.writeToBuffer((void *) indices.data());
+
+
+        indexBuffer = std::make_unique<GBuffer>(
+                gDevice,
+                indexSize,
+                indexCount,
                 VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-                VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                indexBuffer,
-                indexBufferMemory);
+                VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
-        gDevice.copyBuffer(stagingBuffer, indexBuffer, bufferSize);
-
-        vkDestroyBuffer(gDevice.device(), stagingBuffer, nullptr);
-        vkFreeMemory(gDevice.device(), stagingBufferMemory, nullptr);
+        gDevice.copyBuffer(stagingBuffer.getBuffer(), indexBuffer->getBuffer(), bufferSize);
     }
 
     void GModel::draw(VkCommandBuffer commandBuffer) {
@@ -106,12 +88,12 @@ namespace genom {
     }
 
     void GModel::bind(VkCommandBuffer commandBuffer) {
-        VkBuffer buffers[] = {vertexBuffer};
+        VkBuffer buffers[] = {vertexBuffer->getBuffer()};
         VkDeviceSize offsets[] = {0};
         vkCmdBindVertexBuffers(commandBuffer, 0, 1, buffers, offsets);
 
         if (hasIndexBuffer) {
-            vkCmdBindIndexBuffer(commandBuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+            vkCmdBindIndexBuffer(commandBuffer, indexBuffer->getBuffer(), 0, VK_INDEX_TYPE_UINT32);
         }
     }
 }

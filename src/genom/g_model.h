@@ -7,6 +7,7 @@
 
 #include "g_device.h"
 #include "g_vertex.h"
+#include "g_buffer.h"
 #include "../world/chunk.h"
 
 #define GLM_FORCE_RADIANS
@@ -51,13 +52,11 @@ namespace genom {
 
         GDevice &gDevice;
 
-        VkBuffer vertexBuffer{};
-        VkDeviceMemory vertexBufferMemory{};
+        std::unique_ptr<GBuffer> vertexBuffer;
         uint32_t vertexCount{};
 
         bool hasIndexBuffer = false;
-        VkBuffer indexBuffer{};
-        VkDeviceMemory indexBufferMemory{};
+        std::unique_ptr<GBuffer> indexBuffer;
         uint32_t indexCount{};
     };
 }

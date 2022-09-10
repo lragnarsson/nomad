@@ -10,6 +10,7 @@
 #include "genom/g_window.h"
 #include "genom/g_game_object.h"
 #include "genom/g_renderer.h"
+#include "genom/g_descriptor.h"
 
 #include <memory>
 #include <vector>
@@ -37,6 +38,8 @@ namespace nomad {
         genom::GDevice gDevice{gWindow};
         genom::GRenderer gRenderer{gWindow, gDevice};
 
+        // Note: order of declaration matters
+        std::unique_ptr<genom::GDescriptorPool> globalPool{};
         std::vector<genom::GGameObject> gameObjects;
     };
 }

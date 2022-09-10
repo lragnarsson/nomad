@@ -4,9 +4,6 @@
 
 #include "g_device.h"
 
-
-#include "g_device.h"
-
 // std headers
 #include <cstring>
 #include <iostream>

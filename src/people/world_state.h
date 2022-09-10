@@ -2,8 +2,8 @@
 // Created by Lage Ragnarsson on 20.09.21.
 //
 
-#ifndef NOMAD_ppl_WORLD_STATE_H
-#define NOMAD_ppl_WORLD_STATE_H
+#ifndef NOMAD_WORLD_STATE_H
+#define NOMAD_WORLD_STATE_H
 
 #include <unordered_map>
 #include "state.h"

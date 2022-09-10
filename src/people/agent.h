@@ -2,8 +2,8 @@
 // Created by Lage Ragnarsson on 21.09.21.
 //
 
-#ifndef NOMAD_AGasdENT_H
-#define NOMAD_AGasdENT_H
+#ifndef NOMAD_AGENT_H
+#define NOMAD_AGENT_H
 
 #include "subject.h"
 #include "action.h"

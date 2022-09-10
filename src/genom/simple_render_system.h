@@ -11,6 +11,7 @@
 #include "g_pipeline.h"
 #include "g_model.h"
 #include "g_game_object.h"
+#include "g_frame_info.h"
 
 #include <memory>
 #include <vector>
@@ -19,7 +20,7 @@ namespace genom {
     class SimpleRenderSystem {
     public:
 
-        SimpleRenderSystem(GDevice &device, VkRenderPass renderPass);
+        SimpleRenderSystem(GDevice &device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout);
 
         ~SimpleRenderSystem();
 
@@ -28,12 +29,11 @@ namespace genom {
         SimpleRenderSystem &operator=(const SimpleRenderSystem &) = delete;
 
         void renderGameObjects(
-                VkCommandBuffer commandBuffer,
-                std::vector<GGameObject> &gameObjects,
-                const GCamera &camera);
+                FrameInfo &frameInfo,
+                std::vector<GGameObject> &gameObjects);
 
     private:
-        void createPipelineLayout();
+        void createPipelineLayout(VkDescriptorSetLayout globalSetLayout);
 
         void createPipeline(VkRenderPass renderPass);
 
