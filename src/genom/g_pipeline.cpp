@@ -73,8 +73,8 @@ namespace genom {
         shaderStages[1].pNext = nullptr;
         shaderStages[1].pSpecializationInfo = nullptr;
 
-        auto attributeDescriptions = GVertex::getAttributeDescriptions();
-        auto bindingDescriptions = GVertex::getBindingDescriptions();
+        auto& attributeDescriptions = configInfo.attributeDescriptions;
+        auto& bindingDescriptions = configInfo.bindingDescriptions;
 
         VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
         vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -193,6 +193,10 @@ namespace genom {
         configInfo.dynamicStateInfo.pDynamicStates = configInfo.dynamicStateEnables.data();
         configInfo.dynamicStateInfo.dynamicStateCount = static_cast<uint32_t>(configInfo.dynamicStateEnables.size());
         configInfo.dynamicStateInfo.flags = 0;
+
+        configInfo.bindingDescriptions = GVertex::getBindingDescriptions();
+        configInfo.attributeDescriptions = GVertex::getAttributeDescriptions();
+
     }
 
     void GPipeline::bind(VkCommandBuffer commandBuffer) {

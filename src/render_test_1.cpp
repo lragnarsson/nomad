@@ -3,10 +3,11 @@
 //
 
 #include "render_test_1.h"
-#include "genom/simple_render_system.h"
 #include "genom/g_camera.h"
 #include "world/world.h"
 #include "genom/g_buffer.h"
+#include "genom/render_systems/simple_render_system.h"
+#include "genom/render_systems/point_light_system.h"
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -17,11 +18,6 @@
 #include <chrono>
 
 namespace nomad {
-
-    struct GlobalUbo {
-        glm::mat4  projectionView{1.f};
-        glm::vec3 lightDirection = glm::normalize(glm::vec3{1.f, -3.f, -1.f});
-    };
 
     RenderTest1::RenderTest1() {
         globalPool = genom::GDescriptorPool::Builder(gDevice)
@@ -38,7 +34,7 @@ namespace nomad {
         for (int i = 0; i < uboBuffers.size(); i++) {
             uboBuffers[i] = std::make_unique<genom::GBuffer>(
                     gDevice,
-                    sizeof(GlobalUbo),
+                    sizeof(genom::GlobalUbo),
                     1,
                     VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
                     VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
@@ -46,7 +42,7 @@ namespace nomad {
         }
 
         auto globalSetLayout = genom::GDescriptorSetLayout::Builder(gDevice)
-                .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)
+                .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
                 .build();
 
         std::vector<VkDescriptorSet> globalDescriptorSets(genom::GSwapChain::MAX_FRAMES_IN_FLIGHT);
@@ -60,6 +56,11 @@ namespace nomad {
         genom::SimpleRenderSystem simpleRenderSystem{gDevice,
                                                      gRenderer.getSwapChainRenderPass(),
                                                      globalSetLayout->getDescriptorSetLayout()};
+
+        genom::PointLightSystem pointLightSystem{gDevice,
+                                                     gRenderer.getSwapChainRenderPass(),
+                                                     globalSetLayout->getDescriptorSetLayout()};
+
 
         genom::GCamera camera{};
         camera.setViewTarget(glm::vec3{-1.f, -2.f, 0.f}, glm::vec3{0.f, 0.f, 2.5f});
@@ -81,7 +82,7 @@ namespace nomad {
             camera.setViewYXZ(viewerObject.transform.translation, viewerObject.transform.rotation);
 
             float aspect = gRenderer.getAspectRatio();
-            camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 250.f);
+            camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 1000.f);
 
             if (auto commandBuffer = gRenderer.beginFrame()) {
                 int frameIndex = gRenderer.getFrameIndex();
@@ -90,17 +91,22 @@ namespace nomad {
                     frameTime,
                     commandBuffer,
                     camera,
-                    globalDescriptorSets[frameIndex]
+                    globalDescriptorSets[frameIndex],
+                    gameObjects
                 };
                 // Update
-                GlobalUbo ubo{};
-                ubo.projectionView = camera.getProjection() * camera.getView();
+                genom::GlobalUbo ubo{};
+                ubo.projection = camera.getProjection();
+                ubo.view = camera.getView();
+                ubo.inverseView = camera.getInverseView();
+                pointLightSystem.update(frameInfo, ubo);
                 uboBuffers[frameIndex]->writeToBuffer(&ubo);
                 uboBuffers[frameIndex]->flush();
 
                 // Render
                 gRenderer.beginSwapChainRenderPass(commandBuffer);
-                simpleRenderSystem.renderGameObjects(frameInfo, gameObjects);
+                simpleRenderSystem.renderGameObjects(frameInfo);
+                pointLightSystem.render(frameInfo);
                 gRenderer.endSwapChainRenderPass(commandBuffer);
                 gRenderer.endFrame();
             }
@@ -118,6 +124,11 @@ namespace nomad {
         gameObject.model = gModel;
         gameObject.transform.translation = {0.f, 0.f, 0.f};
         gameObject.transform.scale = glm::vec3{1.f, 1.f, 1.f};
-        gameObjects.push_back(std::move(gameObject));
+        gameObjects.emplace(gameObject.getId(), std::move(gameObject));
+
+        auto pointLight = genom::GGameObject::makePointLight(1.f);
+        pointLight.transform.translation  = {10.f, -10.f, 10.f};
+        gameObjects.emplace(pointLight.getId(), std::move(pointLight));
+
     }
 }

@@ -40,7 +40,7 @@ namespace nomad {
 
         // Note: order of declaration matters
         std::unique_ptr<genom::GDescriptorPool> globalPool{};
-        std::vector<genom::GGameObject> gameObjects;
+        genom::GGameObject::Map gameObjects;
     };
 }
 

@@ -6,12 +6,12 @@
 #define NOMAD_SIMPLE_RENDER_SYSTEM_H
 
 
-#include "g_camera.h"
-#include "g_device.h"
-#include "g_pipeline.h"
-#include "g_model.h"
-#include "g_game_object.h"
-#include "g_frame_info.h"
+#include "../g_camera.h"
+#include "../g_device.h"
+#include "../g_pipeline.h"
+#include "../g_model.h"
+#include "../g_game_object.h"
+#include "../g_frame_info.h"
 
 #include <memory>
 #include <vector>
@@ -28,9 +28,7 @@ namespace genom {
 
         SimpleRenderSystem &operator=(const SimpleRenderSystem &) = delete;
 
-        void renderGameObjects(
-                FrameInfo &frameInfo,
-                std::vector<GGameObject> &gameObjects);
+        void renderGameObjects(FrameInfo &frameInfo);
 
     private:
         void createPipelineLayout(VkDescriptorSetLayout globalSetLayout);

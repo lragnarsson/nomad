@@ -37,4 +37,13 @@ namespace genom {
                 {invScale.z * (c2 * s1),                invScale.z * (-s2),     invScale.z * (c1 * c2)}
         };
     }
+
+    GGameObject GGameObject::makePointLight(float intensity, float radius, glm::vec3 color) {
+        GGameObject gameObject = GGameObject::createGameObject();
+        gameObject.color = color;
+        gameObject.transform.scale.x = radius;
+        gameObject.pointLight = std::make_unique<PointLightComponent>();
+        gameObject.pointLight->lightIntensity = intensity;
+        return gameObject;
+    }
 }

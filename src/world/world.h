@@ -12,7 +12,7 @@
 namespace world {
     class World {
     public:
-        void GetTerrainObjects(int x, int z, genom::GDevice &gDevice, std::vector<genom::GGameObject> &results);
+        void GetTerrainObjects(int x, int z, genom::GDevice &gDevice, genom::GGameObject::Map &results);
 
     private:
     };

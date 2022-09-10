@@ -10,6 +10,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <memory>
+#include <unordered_map>
 
 namespace genom {
     struct TransformComponent {
@@ -22,14 +23,21 @@ namespace genom {
         glm::mat3 normalMatrix();
     };
 
+    struct PointLightComponent {
+        float    lightIntensity = 1.0f;
+    };
+
     class GGameObject {
     public:
         using id_t = unsigned int;
+        using Map = std::unordered_map<id_t, GGameObject>;
 
         static GGameObject createGameObject() {
             static id_t currentId = 0;
             return GGameObject{currentId++};
         }
+
+        static GGameObject makePointLight(float intensity = 10.f, float radius = 0.1f, glm::vec3 color = glm::vec3(1.f));
 
         GGameObject(const GGameObject &) = delete;
 
@@ -41,11 +49,13 @@ namespace genom {
 
         id_t getId() { return id; }
 
-        std::shared_ptr<GModel> model{};
-
         glm::vec3 color{};
 
         TransformComponent transform{};
+
+        // Optional components
+        std::shared_ptr<GModel> model{};
+        std::unique_ptr<PointLightComponent> pointLight = nullptr;
     private:
         GGameObject(id_t objId) : id{objId} {}
 

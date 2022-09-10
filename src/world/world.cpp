@@ -7,7 +7,7 @@
 namespace world {
 
     void World::GetTerrainObjects(const int x, const int z, genom::GDevice &gDevice,
-                                  std::vector<genom::GGameObject> &results) {
+                                  genom::GGameObject::Map &results) {
 
         auto terrainChunk = world::Chunk(x, z);
         std::shared_ptr<genom::GModel> terrainModel = genom::GModel::createModelFromTerrain(gDevice,
@@ -18,6 +18,6 @@ namespace world {
         terrainObject.transform.translation = {x * CHUNK_WIDTH, 0.f, z * CHUNK_LENGTH};
         terrainObject.transform.scale = glm::vec3{1.f, 1.f, 1.f};
 
-        results.push_back(std::move(terrainObject));
+        results.emplace(terrainObject.getId(), std::move(terrainObject));
     }
 }
