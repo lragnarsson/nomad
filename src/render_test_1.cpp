@@ -8,6 +8,7 @@
 #include "genom/g_buffer.h"
 #include "genom/render_systems/simple_render_system.h"
 #include "genom/render_systems/point_light_system.h"
+#include "genom/render_systems/billboard_system.h"
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -58,8 +59,12 @@ namespace nomad {
                                                      globalSetLayout->getDescriptorSetLayout()};
 
         genom::PointLightSystem pointLightSystem{gDevice,
-                                                     gRenderer.getSwapChainRenderPass(),
-                                                     globalSetLayout->getDescriptorSetLayout()};
+                                                 gRenderer.getSwapChainRenderPass(),
+                                                 globalSetLayout->getDescriptorSetLayout()};
+
+        genom::BillboardSystem billboardSystem{gDevice,
+                                               gRenderer.getSwapChainRenderPass(),
+                                               globalSetLayout->getDescriptorSetLayout()};
 
 
         genom::GCamera camera{};
@@ -78,7 +83,7 @@ namespace nomad {
             currentTime = newTime;
             //frameTime = glm::min(frameTime, MAX_FRAME_TIME);
 
-            cameraController.moveInPlaneXZ(gWindow.getGLFWwindow(), frameTime, viewerObject);
+            cameraController.handleInput(gWindow.getGLFWwindow(), frameTime, viewerObject, settings);
             camera.setViewYXZ(viewerObject.transform.translation, viewerObject.transform.rotation);
 
             float aspect = gRenderer.getAspectRatio();
@@ -92,7 +97,8 @@ namespace nomad {
                     commandBuffer,
                     camera,
                     globalDescriptorSets[frameIndex],
-                    gameObjects
+                    gameObjects,
+                    settings
                 };
                 // Update
                 genom::GlobalUbo ubo{};
@@ -106,6 +112,7 @@ namespace nomad {
                 // Render
                 gRenderer.beginSwapChainRenderPass(commandBuffer);
                 simpleRenderSystem.renderGameObjects(frameInfo);
+                billboardSystem.render(frameInfo);
                 pointLightSystem.render(frameInfo);
                 gRenderer.endSwapChainRenderPass(commandBuffer);
                 gRenderer.endFrame();
@@ -117,6 +124,10 @@ namespace nomad {
     void RenderTest1::loadGameObjects() {
         auto world = world::World();
         world.GetTerrainObjects(0, 0, gDevice, gameObjects);
+        world.GetTerrainObjects(0, -world::CHUNK_LENGTH, gDevice, gameObjects);
+        world.GetTerrainObjects(-world::CHUNK_WIDTH, 0, gDevice, gameObjects);
+        world.GetTerrainObjects(-world::CHUNK_WIDTH, -world::CHUNK_LENGTH, gDevice, gameObjects);
+
 
         std::shared_ptr<genom::GModel> gModel = genom::GModel::createModelFromFile(gDevice,
                                                                                    "/Users/lage/Development/nomad/res/models/flat_vase.obj");

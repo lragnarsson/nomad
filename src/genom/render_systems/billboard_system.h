@@ -2,8 +2,8 @@
 // Created by Lage Ragnarsson on 05.09.21.
 //
 
-#ifndef NOMAD_TERRAIN_MAP_DEBUG_SYSTEM_H
-#define NOMAD_TERRAIN_MAP_DEBUG_SYSTEM_H
+#ifndef NOMAD_BILLBOARD_SYSTEM_H
+#define NOMAD_BILLBOARD_SYSTEM_H
 
 
 #include "../g_camera.h"
@@ -17,16 +17,16 @@
 #include <vector>
 
 namespace genom {
-    class TerrainMapDebugSystem {
+    class BillboardSystem {
     public:
 
-        TerrainMapDebugSystem(GDevice &device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout);
+        BillboardSystem(GDevice &device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout);
 
-        ~TerrainMapDebugSystem();
+        ~BillboardSystem();
 
-        TerrainMapDebugSystem(const TerrainMapDebugSystem &) = delete;
+        BillboardSystem(const BillboardSystem &) = delete;
 
-        TerrainMapDebugSystem &operator=(const TerrainMapDebugSystem &) = delete;
+        BillboardSystem &operator=(const BillboardSystem &) = delete;
 
         void update(FrameInfo &frameInfo, GlobalUbo &ubo);
 
@@ -44,4 +44,4 @@ namespace genom {
     };
 }
 
-#endif //NOMAD_TERRAIN_MAP_DEBUG_SYSTEM_H
+#endif //NOMAD_BILLBOARD_SYSTEM_H

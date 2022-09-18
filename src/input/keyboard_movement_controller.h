@@ -7,6 +7,7 @@
 
 #include "../genom/g_game_object.h"
 #include "../genom/g_window.h"
+#include "settings.h"
 
 namespace input {
     class KeyboardMovementController {
@@ -22,9 +23,14 @@ namespace input {
             int lookRight = GLFW_KEY_RIGHT;
             int lookUp = GLFW_KEY_UP;
             int lookDown = GLFW_KEY_DOWN;
+            int showDebugTerrainMaps = GLFW_KEY_U;
         };
 
+        void handleInput(GLFWwindow *window, float dt, genom::GGameObject &gameObject, Settings &settings);
+
+    private:
         void moveInPlaneXZ(GLFWwindow *window, float dt, genom::GGameObject &gameObject);
+        void toggleSettings(GLFWwindow *window, Settings &settings);
 
         KeyMappings keys{};
         float moveSpeed{25.f};

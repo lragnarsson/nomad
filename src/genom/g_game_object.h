@@ -28,6 +28,10 @@ namespace genom {
         float lightAttenuation = 0.1f;
     };
 
+    struct BillboardComponent {
+        glm::vec2 size;
+    };
+
     class GGameObject {
     public:
         using id_t = unsigned int;
@@ -60,6 +64,7 @@ namespace genom {
         // Optional components
         std::shared_ptr<GModel> model{};
         std::unique_ptr<PointLightComponent> pointLight = nullptr;
+        std::unique_ptr<BillboardComponent> billboard = nullptr;
     private:
         GGameObject(id_t objId) : id{objId} {}
 

@@ -34,6 +34,8 @@ namespace nomad {
     private:
         void loadGameObjects();
 
+        input::Settings settings;
+
         genom::GWindow gWindow{WIDTH, HEIGHT, "Nomad"};
         genom::GDevice gDevice{gWindow};
         genom::GRenderer gRenderer{gWindow, gDevice};

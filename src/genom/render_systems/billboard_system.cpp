@@ -2,7 +2,7 @@
 // Created by Lage Ragnarsson on 05.09.21.
 //
 
-#include "terrain_map_debug_system.h"
+#include "billboard_system.h"
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -15,26 +15,26 @@
 
 namespace genom {
 
-    struct PointLightPushConstants {
+    struct TerrainMapDebugPushConstants {
         glm::vec4 position{};
         glm::vec4 color{};
-        float radius;
+        alignas(16) glm::vec2 size{};
     };
 
-    TerrainMapDebugSystem::TerrainMapDebugSystem(GDevice &device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout) : gDevice{device} {
+    BillboardSystem::BillboardSystem(GDevice &device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout) : gDevice{device} {
         createPipelineLayout(globalSetLayout);
         createPipeline(renderPass);
     }
 
-    TerrainMapDebugSystem::~TerrainMapDebugSystem() {
+    BillboardSystem::~BillboardSystem() {
         vkDestroyPipelineLayout(gDevice.device(), pipelineLayout, nullptr);
     }
 
-    void TerrainMapDebugSystem::createPipelineLayout(VkDescriptorSetLayout globalSetLayout) {
+    void BillboardSystem::createPipelineLayout(VkDescriptorSetLayout globalSetLayout) {
        VkPushConstantRange pushConstantRange;
         pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
         pushConstantRange.offset = 0;
-        pushConstantRange.size = sizeof(PointLightPushConstants);
+        pushConstantRange.size = sizeof(TerrainMapDebugPushConstants);
 
         std::vector<VkDescriptorSetLayout> descriptorSetLayouts{globalSetLayout};
 
@@ -50,7 +50,7 @@ namespace genom {
         }
     }
 
-    void TerrainMapDebugSystem::createPipeline(VkRenderPass renderPass) {
+    void BillboardSystem::createPipeline(VkRenderPass renderPass) {
         assert(pipelineLayout != nullptr && "Cannot create pipeline before pipeline layout");
 
         genom::PipelineConfigInfo pipelineConfig{};
@@ -61,12 +61,13 @@ namespace genom {
         pipelineConfig.renderPass = renderPass;
         pipelineConfig.pipelineLayout = pipelineLayout;
         gPipeline = std::make_unique<genom::GPipeline>(gDevice,
-                                                       "../cmake-build-debug/shaders/point_light.vert.spv",
-                                                       "../cmake-build-debug/shaders/point_light.frag.spv",
+                                                       "../cmake-build-debug/shaders/billboard.vert.spv",
+                                                       "../cmake-build-debug/shaders/billboard.frag.spv",
                                                        pipelineConfig);
     }
 
-    void TerrainMapDebugSystem::render(FrameInfo &frameInfo) {
+    void BillboardSystem::render(FrameInfo &frameInfo) {
+        if (!frameInfo.settings.showDebugTerrainMaps) return;
         gPipeline->bind(frameInfo.commandBuffer);
 
         vkCmdBindDescriptorSets(
@@ -81,19 +82,19 @@ namespace genom {
 
         for (auto& kv: frameInfo.gameObjects) {
             auto &obj = kv.second;
-            if (obj.pointLight == nullptr) continue;
+            if (obj.billboard == nullptr) continue;
 
-            PointLightPushConstants push{};
+            TerrainMapDebugPushConstants push{};
             push.position = glm::vec4(obj.transform.translation, 1.f);
-            push.color = glm::vec4(obj.color, obj.pointLight->lightIntensity);
-            push.radius = obj.transform.scale.x;
+            push.color = glm::vec4(obj.color, 1.f);
+            push.size = obj.billboard->size;
 
             vkCmdPushConstants(
                     frameInfo.commandBuffer,
                     pipelineLayout,
                     VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
                     0,
-                    sizeof(PointLightPushConstants),
+                    sizeof(TerrainMapDebugPushConstants),
                     &push
                     );
             vkCmdDraw(frameInfo.commandBuffer, 6, 1, 0, 0);

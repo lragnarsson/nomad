@@ -8,6 +8,7 @@
 #include <vulkan/vulkan.h>
 #include "g_camera.h"
 #include "g_game_object.h"
+#include "../input/settings.h"
 
 namespace genom {
     #define MAX_LIGHTS 10
@@ -33,6 +34,7 @@ namespace genom {
         GCamera &camera;
         VkDescriptorSet globalDescriptorSet;
         GGameObject::Map &gameObjects;
+        input::Settings settings;
     };
 }
 #endif //NOMAD_G_FRAME_INFO_H

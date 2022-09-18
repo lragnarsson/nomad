@@ -39,7 +39,7 @@ namespace world {
     }
 
     static inline int getTileZ(int i) {
-        return i / TERRAIN_MAP_LENGTH;
+        return i / TERRAIN_MAP_WIDTH;
     }
 }
 

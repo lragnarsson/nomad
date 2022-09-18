@@ -3,12 +3,20 @@
 //
 
 #include "keyboard_movement_controller.h"
+#include "settings.h"
 
 namespace input {
+
+    void input::KeyboardMovementController::handleInput(GLFWwindow *window, float dt, genom::GGameObject &gameObject,
+                                                        input::Settings &settings) {
+        moveInPlaneXZ(window, dt, gameObject);
+        toggleSettings(window, settings);
+    }
+
     void input::KeyboardMovementController::moveInPlaneXZ(GLFWwindow
                                                           *window,
-                                                          float dt, genom::GGameObject
-                                                          &gameObject) {
+                                                          float dt,
+                                                          genom::GGameObject &gameObject) {
         glm::vec3 rotate{0};
         if (glfwGetKey(window, keys.lookRight) == GLFW_PRESS) rotate.y += 1.f;
         if (glfwGetKey(window, keys.lookLeft) == GLFW_PRESS) rotate.y += -1.f;
@@ -36,6 +44,12 @@ namespace input {
 
         if (glm::dot(moveDir, moveDir) > std::numeric_limits<float>::epsilon()) {
             gameObject.transform.translation += moveSpeed * dt * glm::normalize(moveDir);
+        }
+    }
+
+    void KeyboardMovementController::toggleSettings(GLFWwindow *window, Settings &settings) {
+        if (glfwGetKey(window, keys.showDebugTerrainMaps) == GLFW_PRESS) {
+            settings.showDebugTerrainMaps = !settings.showDebugTerrainMaps;
         }
     }
 }
