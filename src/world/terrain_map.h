@@ -21,7 +21,6 @@ namespace world {
 
         float getAt(int x, int z) const { return data[getTileIndex(x, z)]; }
 
-
         void setAt(const int x, const int z, float value) { data[getTileIndex(x, z)] = value; }
 
         float InterpBiLinear(int x, int z, int xi, int zi) const;

@@ -48,7 +48,8 @@ namespace genom {
         tinyobj::attrib_t attrib;
         std::vector<tinyobj::shape_t> shapes;
         std::vector<tinyobj::material_t> materials;
-        std::string warn, err;
+        std::string warn;
+        std::string err;
 
         if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, filePath.c_str())) {
             throw std::runtime_error(warn + err);
@@ -91,7 +92,7 @@ namespace genom {
                     };
                 }
 
-                if (uniqueVertices.count(vertex) == 0) {
+                if (!uniqueVertices.contains(vertex)) {
                     uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
                     vertices.push_back(vertex);
                 }
@@ -112,5 +113,7 @@ namespace genom {
                 // std::cout << v << "idx: " << idx << std::endl;
             }
         }
+        std::cout << "num vertices: " << vertices.size() << std::endl;
+        std::cout << "num indices: " << indices.size() << std::endl;
     }
 }

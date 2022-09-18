@@ -82,7 +82,7 @@ namespace nomad {
             camera.setViewYXZ(viewerObject.transform.translation, viewerObject.transform.rotation);
 
             float aspect = gRenderer.getAspectRatio();
-            camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 1000.f);
+            camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 5000.f);
 
             if (auto commandBuffer = gRenderer.beginFrame()) {
                 int frameIndex = gRenderer.getFrameIndex();
@@ -126,9 +126,13 @@ namespace nomad {
         gameObject.transform.scale = glm::vec3{1.f, 1.f, 1.f};
         gameObjects.emplace(gameObject.getId(), std::move(gameObject));
 
-        auto pointLight = genom::GGameObject::makePointLight(1.f);
-        pointLight.transform.translation  = {10.f, -10.f, 10.f};
+        auto pointLight = genom::GGameObject::makePointLight(0.5f, 0.5f, glm::vec3{1.0f, .1f, 0.1f}, 0.001f);
+        pointLight.transform.translation  = {50.f, -5.f, 40.f};
         gameObjects.emplace(pointLight.getId(), std::move(pointLight));
+
+        auto sun = genom::GGameObject::makePointLight(.9f, 15.f, glm::vec3{.9f, .8f, 0.75f}, 0.f);
+        sun.transform.translation  = {1000.f, -700.f, 1000.f};
+        gameObjects.emplace(sun.getId(), std::move(sun));
 
     }
 }

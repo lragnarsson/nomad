@@ -52,6 +52,7 @@ namespace world {
     }
 
     void TerrainMap3D::clear(glm::vec3 value) {
+
         for (int i = 0; i < TERRAIN_MAP_SIZE; i++) {
             data[i] = value;
         }

@@ -15,7 +15,7 @@ namespace world {
     class TerrainMap3D {
     public:
         TerrainMap3D(const glm::vec3 value) {
-            data.reserve(CHUNK_WIDTH * CHUNK_LENGTH);
+            data.reserve(TERRAIN_MAP_SIZE * 3);
             clear(value);
         }
 

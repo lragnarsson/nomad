@@ -24,7 +24,8 @@ namespace genom {
     };
 
     struct PointLightComponent {
-        float    lightIntensity = 1.0f;
+        float lightIntensity = 1.0f;
+        float lightAttenuation = 0.1f;
     };
 
     class GGameObject {
@@ -37,7 +38,10 @@ namespace genom {
             return GGameObject{currentId++};
         }
 
-        static GGameObject makePointLight(float intensity = 10.f, float radius = 0.1f, glm::vec3 color = glm::vec3(1.f));
+        static GGameObject makePointLight(float intensity = 10.f,
+                                          float radius = 0.1f,
+                                          glm::vec3 color = glm::vec3(1.f),
+                                          float attenuation = 0.1f);
 
         GGameObject(const GGameObject &) = delete;
 

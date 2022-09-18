@@ -11,8 +11,8 @@
 
 namespace world {
     static constexpr int WORLD_SEED = 42;
-    static constexpr int CHUNK_LENGTH = 48;
-    static constexpr int CHUNK_WIDTH = 48;
+    static constexpr int CHUNK_LENGTH = 256;
+    static constexpr int CHUNK_WIDTH = 256;
     static constexpr int NUM_CHUNK_TILES = CHUNK_LENGTH * CHUNK_WIDTH;
     static constexpr int TERRAIN_MAP_LENGTH = CHUNK_LENGTH + 2;
     static constexpr int TERRAIN_MAP_WIDTH = CHUNK_WIDTH + 2;
