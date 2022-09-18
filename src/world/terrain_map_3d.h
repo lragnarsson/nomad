@@ -6,6 +6,7 @@
 #define NOMAD_TERRAIN_MAP_3D_H
 
 #include "world_constants.h"
+#include "FastNoiseLite.h"
 
 #include <glm/glm.hpp>
 
@@ -23,7 +24,7 @@ namespace world {
 
         void setAt(const int x, const int z, glm::vec3 value) { data[getTileIndex(x, z)] = value; }
 
-        glm::vec3 InterpBiLinear(int x, int z, int xi, int zi) const;
+        glm::vec3 interpBiLinear(int x, int z, int xi, int zi) const;
 
         glm::vec3 getMax() const { return max; }
 
@@ -31,9 +32,9 @@ namespace world {
 
         void clear(glm::vec3 value);
 
-        void Rescale(glm::vec3 min, glm::vec3 max);
+        void rescale(const glm::vec3 newMin, const glm::vec3 newMax);
 
-        void AddSimplexNoise(int x_offset, int z_offset, glm::vec3 frequencyFactors, glm::vec3 amplitudeFactors);
+        void AddNoise(const int x_offset, const int z_offset, FastNoiseLite noise, const glm::vec3 amplitude);
 
     private:
         std::vector<glm::vec3> data;

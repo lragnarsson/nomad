@@ -6,6 +6,7 @@
 
 #include <utility>
 #include "terrain_map.h"
+#include "FastNoiseLite.h"
 
 namespace world {
     Chunk::Chunk(const int x, const int z) :
@@ -22,41 +23,69 @@ namespace world {
 
     TerrainMap Chunk::GenerateContinentalness() const {
         world::TerrainMap continentalness{0.f};
-        //continentalness.AddSimplexNoise(x, z, .7f, 3.f, 3.5f);
-        //continentalness.AddSimplexNoise(x, z, 16.f, 32.f, 0.3f);
+        //continentalness.AddNoise(x, z, .7f, 3.f, 3.5f);
+        //continentalness.AddNoise(x, z, 16.f, 32.f, 0.3f);
         return continentalness;
     }
 
     TerrainMap Chunk::GenerateErosion() const {
         world::TerrainMap erosion{0.f};
-        //erosion.AddSimplexNoise(x, z, .7f, 3.f, 3.5f);
-        //erosion.AddSimplexNoise(x, z, 16.f, 32.f, 0.3f);
+        //erosion.AddNoise(x, z, .7f, 3.f, 3.5f);
+        //erosion.AddNoise(x, z, 16.f, 32.f, 0.3f);
         return erosion;
     }
 
     TerrainMap Chunk::GeneratePeakyness() const {
         world::TerrainMap peakyness{0.f};
-        //peakyness.AddSimplexNoise(x, z, .7f, 3.f, 3.5f);
-        //peakyness.AddSimplexNoise(x, z, 16.f, 32.f, 0.3f);
+        //peakyness.AddNoise(x, z, .7f, 3.f, 3.5f);
+        //peakyness.AddNoise(x, z, 16.f, 32.f, 0.3f);
         return peakyness;
     }
 
 
     TerrainMap Chunk::GenerateHeightMap() const {
         world::TerrainMap heightMap{0.f};
-        heightMap.AddSimplexNoise(x, z, .7f, 3.f, 3.5f);
-        heightMap.AddSimplexNoise(x, z, 16.f, 32.f, 0.3f);
+
+        FastNoiseLite noise1;
+        noise1.SetSeed(WORLD_SEED);
+
+        noise1.SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2);
+        noise1.SetFrequency(0.0005);
+
+        noise1.SetFractalType(FastNoiseLite::FractalType_FBm);
+        noise1.SetFractalOctaves(5);
+        noise1.SetFractalGain(0.9f);
+
+        heightMap.AddNoise(x, z, noise1, 34.f);
+
+        FastNoiseLite noise2;
+        noise2.SetSeed(WORLD_SEED);
+        noise2.SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2);
+        noise2.SetFrequency(0.01f);
+        noise2.SetFractalOctaves(3);
+        noise2.SetFractalType(FastNoiseLite::FractalType_Ridged);
+
+        heightMap.AddNoise(x, z, noise2, 1.f);
+
         return heightMap;
     }
 
     TerrainMap3D Chunk::GenerateTerrainColor() const {
-        world::TerrainMap3D colorMap{glm::vec3(250.f / 256.f, 213.f / 256.f, 165.f / 256.f)};
-        colorMap.AddSimplexNoise(x, z,
-                                 glm::vec3(1.f, 1.f, 1.f),
-                                 glm::vec3(.1f, .1f, .1f));
-        colorMap.AddSimplexNoise(x, z,
-                                 glm::vec3(10.f, 10.f, 10.f),
-                                 glm::vec3(.06f, .06f, .06f));
+        world::TerrainMap3D colorMap{glm::vec3(50.f / 256.f, 75.f / 256.f, 30.f / 256.f)};
+
+        FastNoiseLite noise;
+        noise.SetSeed(WORLD_SEED);
+
+        noise.SetNoiseType(FastNoiseLite::NoiseType_Value);
+        noise.SetFrequency(1.f);
+        colorMap.AddNoise(x, z, noise, glm::vec3(0.05f, 0.05f, 0.05f));
+
+        noise.SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2);
+        noise.SetFrequency(0.01f);
+        noise.SetFractalOctaves(3);
+        noise.SetFractalType(FastNoiseLite::FractalType_Ridged);
+        colorMap.AddNoise(x, z, noise, glm::vec3(0.075f, 0.075f, 0.075f));
+
         return colorMap;
     }
 

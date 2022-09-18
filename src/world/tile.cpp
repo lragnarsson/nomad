@@ -29,7 +29,8 @@ namespace world {
             vertices[i].position.z = TILE_SIZE * (static_cast<float>(z + zi[i])) - 0.5f * TILE_SIZE;
             vertices[i].position.y = heightMap.InterpBiLinear(x, z, xi[i], zi[i]);
 
-            vertices[i].color = colorMap.InterpBiLinear(x, z, xi[i], zi[i]);
+            int colorIndex = i < 3 ? 0 : 1;
+            vertices[i].color = colorMap.interpBiLinear(x, z, colorIndex, 0);
             //vertices[i].color = i < 3 ? glm::vec3{.6f, 0.1f, 0.1f} : glm::vec3{0.1f, .6f, 0.1f};
         }
         // Flat Shading Normals:

@@ -63,12 +63,4 @@ namespace genom {
 
 }  // namespace genom
 
-
-
-
-
-
-
-
-
 #endif //NOMAD_G_BUFFER_H

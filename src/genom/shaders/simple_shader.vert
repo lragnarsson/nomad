@@ -49,7 +49,7 @@ void main() {
         // Specular Lighting
         vec3 halfAngle = normalize(directionToLight + viewDirection);
         float blinnTerm = dot(surfaceNormalWorld, halfAngle);
-        blinnTerm = pow(blinnTerm, 2.0);
+        blinnTerm = pow(blinnTerm, 1.0);
         specularLight += cosAngIncidence * intensity * blinnTerm ;
     }
 

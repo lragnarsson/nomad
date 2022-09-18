@@ -8,7 +8,7 @@
 
 
 namespace world {
-    glm::vec3 TerrainMap3D::InterpBiLinear(const int x, const int z, const int xi, const int zi) const {
+    glm::vec3 TerrainMap3D::interpBiLinear(const int x, const int z, const int xi, const int zi) const {
         int deltaX = 2 * xi - 1;
         int deltaZ = 2 * zi - 1;
         return 0.25f *
@@ -18,27 +18,22 @@ namespace world {
                 getAt(x + deltaX, z + deltaZ));
     }
 
-    void TerrainMap3D::Rescale(const glm::vec3 newMin, const glm::vec3 newMax) {
+    void TerrainMap3D::rescale(const glm::vec3 newMin, const glm::vec3 newMax) {
         const glm::vec3 scaleFactor = (newMax - newMin) / (max - min);
         for (int i = 0; i < TERRAIN_MAP_SIZE; i++) {
             data[i] = scaleFactor * data[i];
         }
     }
 
-    void
-    TerrainMap3D::AddSimplexNoise(const int x_offset, const int z_offset, const glm::vec3 frequencyFactor,
-                                  const glm::vec3 amplitudeFactor) {
-        FastNoiseLite noise;
-        noise.SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2);
-        noise.SetSeed(WORLD_SEED * 2);
+    void TerrainMap3D::AddNoise(const int x_offset, const int z_offset, FastNoiseLite noise, const glm::vec3 amplitude) {
 
         for (int i = 0; i < TERRAIN_MAP_SIZE; i++) {
-            const float x = amplitudeFactor.x * noise.GetNoise((float) (x_offset + getTileX(i)) * frequencyFactor.x,
-                                                               (float) (z_offset + getTileZ(i)) * frequencyFactor.x);
-            const float y = amplitudeFactor.y * noise.GetNoise((float) (x_offset + getTileX(i)) * frequencyFactor.y,
-                                                               (float) (z_offset + getTileZ(i)) * frequencyFactor.y);
-            const float z = amplitudeFactor.z * noise.GetNoise((float) (x_offset + getTileX(i)) * frequencyFactor.z,
-                                                               (float) (z_offset + getTileZ(i)) * frequencyFactor.z);
+            const float x = amplitude.x * noise.GetNoise((float) (x_offset + getTileX(i)),
+                                                         (float) (z_offset + getTileZ(i)));
+            const float y = amplitude.y * noise.GetNoise((float) (x_offset + getTileX(i)),
+                                                         (float) (z_offset + getTileZ(i)));
+            const float z = amplitude.z * noise.GetNoise((float) (x_offset + getTileX(i)),
+                                                         (float) (z_offset + getTileZ(i)));
             data[i] += glm::vec3(x, y, z);
 
             if (data[i].x > max.x) max.x = data[i].x;

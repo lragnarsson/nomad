@@ -6,6 +6,7 @@
 #define NOMAD_TERRAIN_MAP_H
 
 #include "world_constants.h"
+#include "FastNoiseLite.h"
 
 #include <glm/glm.hpp>
 
@@ -31,8 +32,7 @@ namespace world {
 
         void clear(float value);
 
-        void AddSimplexNoise(int x, int z, float frequencyFactorX, float frequencyFactorY,
-                             float amplitudeFactor);
+        void AddNoise(int x, int z, FastNoiseLite noise, float amplitude);
 
         void Rescale(float min, float max);
 
