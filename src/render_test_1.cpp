@@ -31,47 +31,12 @@ namespace nomad {
     RenderTest1::~RenderTest1() {}
 
     void RenderTest1::run() {
-        std::vector<std::unique_ptr<genom::GBuffer>> uboBuffers(genom::GSwapChain::MAX_FRAMES_IN_FLIGHT);
-        for (int i = 0; i < uboBuffers.size(); i++) {
-            uboBuffers[i] = std::make_unique<genom::GBuffer>(
-                    gDevice,
-                    sizeof(genom::GlobalUbo),
-                    1,
-                    VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-                    VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
-            uboBuffers[i]->map();
-        }
-
-        auto globalSetLayout = genom::GDescriptorSetLayout::Builder(gDevice)
-                .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
-                .build();
-
-        std::vector<VkDescriptorSet> globalDescriptorSets(genom::GSwapChain::MAX_FRAMES_IN_FLIGHT);
-        for (int i = 0; i < globalDescriptorSets.size(); i++){
-            auto bufferInfo = uboBuffers[i]->descriptorInfo();
-            genom::GDescriptorWriter(*globalSetLayout, *globalPool)
-                .writeBuffer(0, &bufferInfo)
-                .build(globalDescriptorSets[i]);
-        }
-
-        genom::SimpleRenderSystem simpleRenderSystem{gDevice,
-                                                     gRenderer.getSwapChainRenderPass(),
-                                                     globalSetLayout->getDescriptorSetLayout()};
-
-        genom::PointLightSystem pointLightSystem{gDevice,
-                                                 gRenderer.getSwapChainRenderPass(),
-                                                 globalSetLayout->getDescriptorSetLayout()};
-
-        genom::BillboardSystem billboardSystem{gDevice,
-                                               gRenderer.getSwapChainRenderPass(),
-                                               globalSetLayout->getDescriptorSetLayout()};
-
-
+        initRenderer();
         genom::GCamera camera{};
         camera.setViewTarget(glm::vec3{-1.f, -2.f, 0.f}, glm::vec3{0.f, 0.f, 2.5f});
 
         auto viewerObject = genom::GGameObject::createGameObject();
-        input::KeyboardMovementController cameraController{};
+        input::KeyboardController cameraController{};
 
         auto currentTime = std::chrono::high_resolution_clock::now();
 
@@ -100,20 +65,27 @@ namespace nomad {
                     gameObjects,
                     settings
                 };
+
                 // Update
                 genom::GlobalUbo ubo{};
                 ubo.projection = camera.getProjection();
                 ubo.view = camera.getView();
                 ubo.inverseView = camera.getInverseView();
-                pointLightSystem.update(frameInfo, ubo);
+
+                for (auto &rs : renderSystems) {
+                    rs->update(frameInfo, ubo);
+                }
+
                 uboBuffers[frameIndex]->writeToBuffer(&ubo);
                 uboBuffers[frameIndex]->flush();
 
                 // Render
                 gRenderer.beginSwapChainRenderPass(commandBuffer);
-                simpleRenderSystem.renderGameObjects(frameInfo);
-                billboardSystem.render(frameInfo);
-                pointLightSystem.render(frameInfo);
+
+                for (auto &rs : renderSystems) {
+                    rs->render(frameInfo);
+                }
+
                 gRenderer.endSwapChainRenderPass(commandBuffer);
                 gRenderer.endFrame();
             }
@@ -121,12 +93,46 @@ namespace nomad {
         vkDeviceWaitIdle(gDevice.device());
     }
 
+    void RenderTest1::initRenderer() {
+        std::vector<std::unique_ptr<genom::GBuffer>> uboBuffers(genom::GSwapChain::MAX_FRAMES_IN_FLIGHT);
+        for (int i = 0; i < uboBuffers.size(); i++) {
+            uboBuffers[i] = std::make_unique<genom::GBuffer>(
+                    gDevice,
+                    sizeof(genom::GlobalUbo),
+                    1,
+                    VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+                    VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+            uboBuffers[i]->map();
+        }
+
+        auto globalSetLayout = genom::GDescriptorSetLayout::Builder(gDevice)
+                .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
+                .build();
+
+        globalDescriptorSets = std::vector<VkDescriptorSet>(genom::GSwapChain::MAX_FRAMES_IN_FLIGHT);
+        for (int i = 0; i < globalDescriptorSets.size(); i++){
+            auto bufferInfo = uboBuffers[i]->descriptorInfo();
+            genom::GDescriptorWriter(*globalSetLayout, *globalPool)
+                    .writeBuffer(0, &bufferInfo)
+                    .build(globalDescriptorSets[i]);
+        }
+
+        renderSystems.emplace_back(std::make_unique<genom::SimpleRenderSystem>(gDevice));
+        renderSystems.emplace_back(std::make_unique<genom::PointLightSystem>(gDevice));
+        renderSystems.emplace_back(std::make_unique<genom::BillboardSystem>(gDevice));
+
+        for (auto &rs : renderSystems) {
+            rs->init(gRenderer.getSwapChainRenderPass(),
+                     globalSetLayout->getDescriptorSetLayout());
+        }
+    }
+
     void RenderTest1::loadGameObjects() {
         auto world = world::World();
         world.GetTerrainObjects(0, 0, gDevice, gameObjects);
-        world.GetTerrainObjects(0, -world::CHUNK_LENGTH, gDevice, gameObjects);
+        /*world.GetTerrainObjects(0, -world::CHUNK_LENGTH, gDevice, gameObjects);
         world.GetTerrainObjects(-world::CHUNK_WIDTH, 0, gDevice, gameObjects);
-        world.GetTerrainObjects(-world::CHUNK_WIDTH, -world::CHUNK_LENGTH, gDevice, gameObjects);
+        world.GetTerrainObjects(-world::CHUNK_WIDTH, -world::CHUNK_LENGTH, gDevice, gameObjects);*/
 
 
         std::shared_ptr<genom::GModel> gModel = genom::GModel::createModelFromFile(gDevice,

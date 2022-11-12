@@ -22,13 +22,15 @@ namespace genom {
         float radius;
     };
 
-    PointLightSystem::PointLightSystem(GDevice &device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout) : gDevice{device} {
-        createPipelineLayout(globalSetLayout);
-        createPipeline(renderPass);
-    }
+    PointLightSystem::PointLightSystem(GDevice &device) : gDevice{device} {}
 
     PointLightSystem::~PointLightSystem() {
         vkDestroyPipelineLayout(gDevice.device(), pipelineLayout, nullptr);
+    }
+
+    void PointLightSystem::init(VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout) {
+        createPipelineLayout(globalSetLayout);
+        createPipeline(renderPass);
     }
 
     void PointLightSystem::createPipelineLayout(VkDescriptorSetLayout globalSetLayout) {

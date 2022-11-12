@@ -21,13 +21,15 @@ namespace genom {
         alignas(16) glm::vec2 size{};
     };
 
-    BillboardSystem::BillboardSystem(GDevice &device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout) : gDevice{device} {
-        createPipelineLayout(globalSetLayout);
-        createPipeline(renderPass);
-    }
+    BillboardSystem::BillboardSystem(GDevice &device) : gDevice{device} { }
 
     BillboardSystem::~BillboardSystem() {
         vkDestroyPipelineLayout(gDevice.device(), pipelineLayout, nullptr);
+    }
+
+    void BillboardSystem::init(VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout) {
+        createPipelineLayout(globalSetLayout);
+        createPipeline(renderPass);
     }
 
     void BillboardSystem::createPipelineLayout(VkDescriptorSetLayout globalSetLayout) {

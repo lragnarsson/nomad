@@ -2,15 +2,15 @@
 // Created by Lage Ragnarsson on 05.09.21.
 //
 
-#ifndef NOMAD_KEYBOARD_MOVEMENT_CONTROLLER_H
-#define NOMAD_KEYBOARD_MOVEMENT_CONTROLLER_H
+#ifndef NOMAD_KEYBOARD_CONTROLLER_H
+#define NOMAD_KEYBOARD_CONTROLLER_H
 
 #include "../genom/g_game_object.h"
 #include "../genom/g_window.h"
 #include "settings.h"
 
 namespace input {
-    class KeyboardMovementController {
+    class KeyboardController {
     public:
         struct KeyMappings {
             int moveLeft = GLFW_KEY_A;
@@ -30,7 +30,7 @@ namespace input {
 
     private:
         void moveInPlaneXZ(GLFWwindow *window, float dt, genom::GGameObject &gameObject);
-        void toggleSettings(GLFWwindow *window, Settings &settings);
+        void handleToggles(GLFWwindow *window, Settings &settings);
 
         KeyMappings keys{};
         float moveSpeed{25.f};
@@ -38,4 +38,4 @@ namespace input {
     };
 }
 
-#endif //NOMAD_KEYBOARD_MOVEMENT_CONTROLLER_H
+#endif //NOMAD_KEYBOARD_CONTROLLER_H

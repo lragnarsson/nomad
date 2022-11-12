@@ -12,15 +12,16 @@
 #include "../g_model.h"
 #include "../g_game_object.h"
 #include "../g_frame_info.h"
+#include "render_system.h"
 
 #include <memory>
 #include <vector>
 
 namespace genom {
-    class SimpleRenderSystem {
+    class SimpleRenderSystem : public RenderSystem {
     public:
 
-        SimpleRenderSystem(GDevice &device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout);
+        explicit SimpleRenderSystem(GDevice &device);
 
         ~SimpleRenderSystem();
 
@@ -28,7 +29,11 @@ namespace genom {
 
         SimpleRenderSystem &operator=(const SimpleRenderSystem &) = delete;
 
-        void renderGameObjects(FrameInfo &frameInfo);
+        void init(VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout) override;
+
+        void update(FrameInfo &frameInfo, GlobalUbo &ubo) override { }
+
+        void render(FrameInfo &frameInfo) override;
 
     private:
         void createPipelineLayout(VkDescriptorSetLayout globalSetLayout);

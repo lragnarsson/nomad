@@ -5,4 +5,5 @@
 #include "settings.h"
 
 namespace input {
+
 } // input

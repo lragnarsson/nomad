@@ -12,15 +12,16 @@
 #include "../g_model.h"
 #include "../g_game_object.h"
 #include "../g_frame_info.h"
+#include "render_system.h"
 
 #include <memory>
 #include <vector>
 
 namespace genom {
-    class BillboardSystem {
+    class BillboardSystem : public RenderSystem {
     public:
 
-        BillboardSystem(GDevice &device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout);
+        explicit BillboardSystem(GDevice &device);
 
         ~BillboardSystem();
 
@@ -28,9 +29,11 @@ namespace genom {
 
         BillboardSystem &operator=(const BillboardSystem &) = delete;
 
-        void update(FrameInfo &frameInfo, GlobalUbo &ubo);
+        void init(VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout) override;
 
-        void render(FrameInfo &frameInfo);
+        void update(FrameInfo &frameInfo, GlobalUbo &ubo) override { }
+
+        void render(FrameInfo &frameInfo) override;
 
     private:
         void createPipelineLayout(VkDescriptorSetLayout globalSetLayout);

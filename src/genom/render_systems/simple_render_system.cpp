@@ -21,15 +21,16 @@ namespace genom {
         glm::mat4 normalMatrix{1.f};
     };
 
-    SimpleRenderSystem::SimpleRenderSystem(GDevice &device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout) : gDevice{device} {
-        createPipelineLayout(globalSetLayout);
-        createPipeline(renderPass);
-    }
+    SimpleRenderSystem::SimpleRenderSystem(GDevice &device) : gDevice{device} { }
 
     SimpleRenderSystem::~SimpleRenderSystem() {
         vkDestroyPipelineLayout(gDevice.device(), pipelineLayout, nullptr);
     }
 
+    void SimpleRenderSystem::init(VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout) {
+        createPipelineLayout(globalSetLayout);
+        createPipeline(renderPass);
+    }
 
     void SimpleRenderSystem::createPipelineLayout(VkDescriptorSetLayout globalSetLayout) {
 
@@ -66,7 +67,7 @@ namespace genom {
                                                        pipelineConfig);
     }
 
-    void SimpleRenderSystem::renderGameObjects(FrameInfo &frameInfo) {
+    void SimpleRenderSystem::render(FrameInfo &frameInfo) {
         gPipeline->bind(frameInfo.commandBuffer);
 
         vkCmdBindDescriptorSets(

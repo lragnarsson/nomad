@@ -2,18 +2,18 @@
 // Created by Lage Ragnarsson on 05.09.21.
 //
 
-#include "keyboard_movement_controller.h"
+#include "keyboard_controller.h"
 #include "settings.h"
 
 namespace input {
 
-    void input::KeyboardMovementController::handleInput(GLFWwindow *window, float dt, genom::GGameObject &gameObject,
+    void KeyboardController::handleInput(GLFWwindow *window, float dt, genom::GGameObject &gameObject,
                                                         input::Settings &settings) {
         moveInPlaneXZ(window, dt, gameObject);
-        toggleSettings(window, settings);
+        handleToggles(window, settings);
     }
 
-    void input::KeyboardMovementController::moveInPlaneXZ(GLFWwindow
+    void KeyboardController::moveInPlaneXZ(GLFWwindow
                                                           *window,
                                                           float dt,
                                                           genom::GGameObject &gameObject) {
@@ -47,7 +47,7 @@ namespace input {
         }
     }
 
-    void KeyboardMovementController::toggleSettings(GLFWwindow *window, Settings &settings) {
+    void KeyboardController::handleToggles(GLFWwindow *window, Settings &settings) {
         if (glfwGetKey(window, keys.showDebugTerrainMaps) == GLFW_PRESS) {
             settings.showDebugTerrainMaps = !settings.showDebugTerrainMaps;
         }

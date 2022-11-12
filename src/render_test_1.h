@@ -5,12 +5,16 @@
 #ifndef NOMAD_RENDER_TEST_1_H
 #define NOMAD_RENDER_TEST_1_H
 
-#include "input/keyboard_movement_controller.h"
+#include "input/keyboard_controller.h"
 #include "genom/g_device.h"
 #include "genom/g_window.h"
 #include "genom/g_game_object.h"
 #include "genom/g_renderer.h"
 #include "genom/g_descriptor.h"
+#include "genom/g_swap_chain.h"
+#include "genom/render_systems/point_light_system.h"
+#include "genom/render_systems/simple_render_system.h"
+#include "genom/render_systems/billboard_system.h"
 
 #include <memory>
 #include <vector>
@@ -33,6 +37,7 @@ namespace nomad {
 
     private:
         void loadGameObjects();
+        void initRenderer();
 
         input::Settings settings;
 
@@ -43,6 +48,10 @@ namespace nomad {
         // Note: order of declaration matters
         std::unique_ptr<genom::GDescriptorPool> globalPool{};
         genom::GGameObject::Map gameObjects;
+        std::vector<VkDescriptorSet> globalDescriptorSets;
+        std::vector<std::unique_ptr<genom::GBuffer>> uboBuffers;
+
+        std::vector<std::unique_ptr<genom::RenderSystem>> renderSystems;
     };
 }
 

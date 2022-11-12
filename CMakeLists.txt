@@ -31,6 +31,7 @@ message(STATUS "Found all libraries: ${LIBS}")
 include_directories("${CMAKE_SOURCE_DIR}/lib/tinyobjloader")
 include_directories("${CMAKE_SOURCE_DIR}/lib/FastNoiseLite")
 include_directories("${CMAKE_SOURCE_DIR}/lib/Spline")
+include_directories("${CMAKE_SOURCE_DIR}/lib/stb")
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES} ${HEADER_FILES})
 target_link_libraries(${PROJECT_NAME} ${LIBS})
